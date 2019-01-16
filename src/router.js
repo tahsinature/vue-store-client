@@ -13,6 +13,11 @@ export default new Router({
       name: 'home',
       component: Home,
     },
+    {
+      path: '/products/:id',
+      name: 'product',
+      component: () => import('./views/ProductDetails.vue'),
+    },
     // {
     //   path: '/about',
     //   name: 'about',

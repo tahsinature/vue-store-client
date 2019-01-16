@@ -1,11 +1,21 @@
 <template>
   <div>
-    <h1>Project 1 Home Page</h1>
+    <app-product-preview v-for="product in products" :key="product._id" :product="product"></app-product-preview>
   </div>
 </template>
 
 <script>
-export default {};
+import { mapGetters } from 'vuex';
+import ProductPreviewVue from '../components/ProductTile.vue';
+
+export default {
+  components: {
+    'app-product-preview': ProductPreviewVue,
+  },
+  computed: {
+    ...mapGetters(['products']),
+  },
+};
 </script>
 
 <style>

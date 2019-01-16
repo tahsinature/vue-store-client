@@ -6,15 +6,17 @@ import store from './store/store';
 
 Vue.config.productionTip = false;
 Vue.use(VueResource);
+Vue.use(require('vue-moment'));
 
-export default {
+export default new Vue({
   data: {
+    // isNavActive: false,
     url: {
       root: 'http://localhost:3000/',
-      // postsUrl: 'http://localhost:3000/posts',
+      productsUrl: 'http://localhost:3000/products',
     },
   },
-};
+});
 
 new Vue({
   router,
