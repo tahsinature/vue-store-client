@@ -2,8 +2,8 @@
   <div class="container product-details mt-4" v-if="product">
     <div class="product-details__top">
       <div class="product-details__top__image text-center">
-        <app-image-slider :images="product.image"></app-image-slider>
-        <p class="mt-2">({{product.image.length}} {{product.image.length > 1 ? "images" : "image"}})</p>
+        <app-image-slider :images="product.images"></app-image-slider>
+        <p>({{product.images.length}} {{product.images.length > 1 ? "images" : "image"}})</p>
       </div>
       <div class="product-details__top__content">
         <h1 class="text-center">{{product.title}}</h1>
@@ -112,7 +112,7 @@ export default {
   },
   methods: {
     editProduct() {
-      console.log(this.product);
+      this.$router.push(`/products/${this.product._id}/edit`);
     },
     async removeProduct() {
       const response = await this.$http.delete(
@@ -168,6 +168,11 @@ export default {
       margin-right: 2rem;
       @include respond(df, tab-p) {
         margin-right: 0;
+      }
+      p {
+        color: rgb(255, 255, 255);
+        background: rgba(0, 0, 0, 0.493);
+        padding: 0.5rem 0;
       }
     }
     &__content {

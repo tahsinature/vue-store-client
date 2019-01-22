@@ -3,17 +3,17 @@
     <app-header></app-header>
     <app-cart></app-cart>
     <div class="content-field">
-      <app-nav class="side-nav"></app-nav>
-      <router-view class="adjustment-nav"></router-view>
+      <app-nav></app-nav>
+      <router-view></router-view>
     </div>
   </div>
 </template>
 
 <script>
-import eventBus from './main';
 import HeaderVue from './components/Header.vue';
 import CartVue from './components/Cart.vue';
 import SideNavVue from './components/SideNav.vue';
+import { productController } from './api';
 
 export default {
   components: {
@@ -22,7 +22,7 @@ export default {
     'app-nav': SideNavVue,
   },
   async created() {
-    const result = await this.$http.get(eventBus.url.productsUrl);
+    const result = await productController.getAllProducts();
     if (result.status === 200) {
       const products = result.data;
       this.$store.dispatch('getAllProductsFromServer', products);
@@ -41,6 +41,10 @@ export default {
 p {
   margin: 0;
 }
+</style>
+
+<style lang="scss">
+@import "./assets/sass/main.scss";
 </style>
 
 <style lang="scss" scoped>

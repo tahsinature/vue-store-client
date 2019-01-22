@@ -1,6 +1,6 @@
 <template>
   <app-slick class="imageContainer" :options="slickOptions">
-    <img v-for="(image, index) in images" :src="image" :key="index">
+    <img v-for="image in images" :src="image.url" :key="image._id">
   </app-slick>
 </template>
 

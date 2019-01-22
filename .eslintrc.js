@@ -8,8 +8,9 @@ module.exports = {
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-param-reassign': 0,
+    'no-underscore-dangle': 0,
+    eqeqeq: 0,
     'max-len': ['error', { code: 1120 }],
-    
   },
   parserOptions: {
     parser: 'babel-eslint',

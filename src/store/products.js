@@ -15,9 +15,16 @@ const mutations = {
   getAllProductsFromServer(state, payload) {
     state.products = payload;
   },
+  addNewProduct(state, payload) {
+    state.products.unshift(payload);
+  },
   removeProduct(state, payload) {
     const item = state.products.find(product => product._id === payload);
     state.products.splice(state.products.indexOf(item), 1);
+  },
+  editProduct(state, payload) {
+    // state.products.find(element => )
+    console.log(payload);
   },
 };
 
@@ -25,8 +32,14 @@ const actions = {
   getAllProductsFromServer({ commit }, payload) {
     commit('getAllProductsFromServer', payload);
   },
+  addNewProduct({ commit }, payload) {
+    commit('addNewProduct', payload);
+  },
   removeProduct({ commit }, payload) {
     commit('removeProduct', payload);
+  },
+  editProduct({ commit }, payload) {
+    commit('editProduct', payload);
   },
 };
 

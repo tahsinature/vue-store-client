@@ -11,26 +11,26 @@
           <i class="fas fa-home"></i>
           <p>Home</p>
         </router-link>
-        <router-link active-class="item-active" tag="li" class="link" to="/unset">
+        <router-link active-class="item-active" tag="li" class="link" to="/my-products">
           <i class="fas fa-ad"></i>
           <p>My Ads</p>
         </router-link>
-        <li class="link">
+        <router-link active-class="item-active" tag="li" class="link" to="/#2">
           <i class="fab fa-facebook-messenger"></i>
           <p>Messages</p>
-        </li>
-        <li class="link">
+        </router-link>
+        <router-link active-class="item-active" tag="li" class="link" to="/#3">
           <i class="fas fa-bell"></i>
           <p>Notification</p>
-        </li>
-        <li class="link">
+        </router-link>
+        <router-link active-class="item-active" tag="li" class="link" to="/me">
           <i class="fas fa-user"></i>
           <p>Account</p>
-        </li>
-        <li class="link">
+        </router-link>
+        <router-link active-class="item-active" tag="li" class="link" to="/#4">
           <i class="fas fa-info-circle"></i>
           <p>About</p>
-        </li>
+        </router-link>
       </ul>
     </nav>
   </div>
@@ -48,7 +48,6 @@ export default {
   created() {
     eventBus.$on('onToggleNav', () => {
       this.isNavExpanded = !this.isNavExpanded;
-      console.log('passed');
     });
   },
 };

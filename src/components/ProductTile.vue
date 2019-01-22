@@ -1,7 +1,12 @@
 <template>
   <div class="product-preview container" @click="gotoDetails()">
     <div class="product-preview__left">
-      <img class="product-preview__left--img" :src="product.image[0]" alt>
+      <img
+        class="product-preview__left--img"
+        :src="(product.images[0]) ? product.images[0].url : 'https://www.shopgro.in/img/no-image.png'"
+        alt
+      >
+      <!-- https://www.shopgro.in/img/no-image.png -->
     </div>
     <div class="product-preview__right">
       <h3>{{product.title}}</h3>
