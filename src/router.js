@@ -47,12 +47,36 @@ const router = new Router({
     },
     {
       path: '/products/:id',
-      name: 'product',
+      name: 'product-details',
       component: () => import('./views/ProductDetails.vue'),
+      beforeEnter(to, from, next) {
+        productController
+          .getSingleProduct(to.params.id)
+          .then((response) => {
+            if (response && response.status === 200) {
+              store.dispatch('setSelectedProduct', response.data);
+              return next();
+            }
+            next('404');
+          })
+          .catch(() => {
+            next('404');
+          });
+      },
     },
     {
       path: '/me',
-      name: 'profile',
+      name: 'my-profile',
+      component: () => import('./views/Profile.vue'),
+    },
+    {
+      path: '/me/edit',
+      name: 'my-profile-edit',
+      component: () => import('./views/ProfileControl.vue'),
+    },
+    {
+      path: '/profile/:id',
+      name: 'user-profile',
       component: () => import('./views/Profile.vue'),
     },
     {

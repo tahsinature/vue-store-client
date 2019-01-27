@@ -9,7 +9,7 @@
         placeholder="Title"
         class="form-control"
         v-model="newProduct.title"
-        v-validate="{required: true, min: 5, max: 15}"
+        v-validate="{required: true, min: 5, max: 25}"
         name="title"
         :class="{'is-invalid': errors.has('title')}"
       >
@@ -36,11 +36,67 @@
         <div class="input-group-prepend">
           <label class="input-group-text" for="inputGroupSelect01">Location</label>
         </div>
-        <select class="custom-select" id="inputGroupSelect01" v-model="newProduct.location">
-          <option v-for="location in locations" :key="location">{{location}}</option>
+        <select
+          class="custom-select"
+          id="inputGroupSelect01"
+          v-model="newProduct.location"
+          name="location"
+          v-validate="'required'"
+          :class="{'is-invalid': errors.has('location')}"
+        >
+          <option
+            v-for="location in locations"
+            :key="location.value"
+            :value="location.value"
+          >{{location.name}}</option>
         </select>
+        <small class="invalid-feedback">{{errors.first('location')}}</small>
       </div>
     </div>
+    <div class="form-group">
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <label class="input-group-text" for="inputGroupSelect02">Category</label>
+        </div>
+        <select
+          class="custom-select"
+          id="inputGroupSelect02"
+          v-model="newProduct.category"
+          name="category"
+          :class="{'is-invalid': errors.has('category')}"
+          v-validate="'required'"
+        >
+          <option
+            v-for="category in categories"
+            :value="category.value"
+            :key="category.value"
+          >{{category.name}}</option>
+        </select>
+        <small class="invalid-feedback">{{errors.first('category')}}</small>
+      </div>
+    </div>
+    <!-- -- -->
+    <div class="form-group">
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <label class="input-group-text" for="inputGroupSelect03">Condition</label>
+        </div>
+        <select
+          class="custom-select"
+          id="inputGroupSelect03"
+          name="condition"
+          :class="{'is-invalid': errors.has('category')}"
+          v-validate="'required'"
+          v-model="newProduct.condition"
+        >
+          <option selected hidden disabled value="null">Select Condition of the product</option>
+          <option value="used">Used</option>
+          <option value="new">New</option>
+        </select>
+        <small class="invalid-feedback">{{errors.first('condition')}}</small>
+      </div>
+    </div>
+    <!-- -- -->
     <div class="form-group">
       <textarea
         data-gramm_editor="false"
@@ -51,7 +107,7 @@
         placeholder="Describe about this product here..."
         name="description"
         v-model="newProduct.description"
-        v-validate="{required: true, max: 255}"
+        v-validate="{required: true, max: 500}"
         :class="{'is-invalid': errors.has('description')}"
       ></textarea>
       <small class="invalid-feedback">{{errors.first('description')}}</small>
@@ -90,6 +146,7 @@
             @before-remove="beforeRemove"
             :key="1"
             ref="imageUploader"
+            :class="{'image-uploader-error': imgWarning}"
           ></image-uploader>
           <button
             class="btn btn-block btn-success"
@@ -101,6 +158,7 @@
             Upload
             <i class="fas fa-upload"></i>
           </button>
+          <small class="invalid-feedback d-inline" v-if="imgWarning">Image is required</small>
         </div>
       </div>
       <div
@@ -118,22 +176,6 @@
         </div>
       </div>
     </div>
-    <!-- <div class="input-group mb-3">
-      <div class="input-group-prepend">
-        <span class="input-group-text" id="inputGroupFileAddon01">Upload</span>
-      </div>
-      <div class="custom-file">
-        <input
-          type="file"
-          class="custom-file-input"
-          id="inputGroupFile01"
-          aria-describedby="inputGroupFileAddon01"
-          @change="onImageSelect($event)"
-          ref="image"
-        >
-        <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
-      </div>
-    </div>-->
     <button
       class="btn btn-primary btn-block"
       type="button"
@@ -158,6 +200,7 @@
 /* eslint-disable no-unused-vars */
 import imageUploader from 'vue-upload-multiple-image';
 import axios from 'axios';
+import Vue from 'vue';
 import { productController, mediaController } from '../api';
 import SingleImagePreviewVue from '../components/SingleImagePreview.vue';
 
@@ -171,31 +214,52 @@ export default {
       newProduct: {
         title: '',
         price: undefined,
-        location: 'Asia',
+        location: null,
+        category: null,
+        condition: null,
         description: '',
         images: [],
       },
       locations: [
-        'Asia',
-        'Africa',
-        'North America',
-        'South America',
-        'Antartica',
-        'Europe',
-        'Australia',
+        { name: 'Select Location', value: null },
+        { name: 'Asia', value: 'asia' },
+        { name: 'Africa', value: 'africa' },
+        { name: 'North America', value: 'north-america' },
+        { name: 'South America', value: 'south-america' },
+        { name: 'Antartica', value: 'antartica' },
+        { name: 'Europe', value: 'europe' },
+        { name: 'Australia', value: 'australia' },
+      ],
+      categories: [
+        { name: 'Select Product Category', value: null },
+        { name: 'Mobiles', value: 'mobile' },
+        { name: 'Electronics', value: 'electronic' },
+        { name: 'Vehicles', value: 'vehicle' },
+        { name: 'Property', value: 'property' },
+        { name: 'Jobs', value: 'job' },
+        { name: 'Services', value: 'service' },
+        { name: 'Home & Living', value: 'home-living' },
+        { name: 'Fashion, Health & Beauty', value: 'fashion-health-beauty' },
+        { name: 'Hobbies, Sports & Kids', value: 'hobby-sport-kid' },
+        { name: 'Business & Industry', value: 'business' },
+        { name: 'Education', value: 'education' },
+        { name: 'Pets & Animals', value: 'pets' },
+        { name: 'Food & Agriculture', value: 'food' },
       ],
       selectedImages: [],
-      firstTry: true,
+      isImageBoxTouched: false,
       checkMode: false,
       allDone: false,
       windowSize: undefined,
       isUploading: false,
       uploadProgress: 0,
       mode: undefined,
+      imgWarning: false,
     };
   },
   methods: {
     uploadImageSuccess(formData, index, files) {
+      this.isImageBoxTouched = true;
       const file = formData.getAll('file')[0];
       if (this.selectedImages.length < 5 - this.newProduct.images.length) {
         this.selectedImages.push(file);
@@ -254,6 +318,7 @@ export default {
       this.newProduct.images.splice(index, 1);
     },
     reviewPost() {
+      this.isImageBoxTouched = true;
       this.checkMode = true;
       // setTimeout(() => {
       this.$validator.validateAll().then((success) => {
@@ -264,7 +329,7 @@ export default {
               .newProduct(this.newProduct)
               .then((resp) => {
                 this.$store.dispatch('addNewProduct', resp.data);
-                // eslint-disable-next-line no-underscore-dangle
+                this.$emit('onNewPost');
                 this.$router.push(`/products/${resp.data._id}`);
               })
               .catch(err => console.log(err.response));
@@ -272,17 +337,26 @@ export default {
             productController
               .editProduct(this.$route.params.id, this.newProduct)
               .then((resp) => {
-                this.$store.dispatch('editProduct', resp.data);
-                // eslint-disable-next-line no-underscore-dangle
+                this.$store.dispatch('setSelectedProduct', resp.data);
+                this.$emit('onPostEdit', resp.data.title);
                 this.$router.push(`/products/${resp.data._id}`);
               })
-              .catch(err => console.log(err.response));
+              .catch(err => console.log(err));
           }
         } else {
           this.checkMode = false;
         }
       });
       // }, 1000);
+    },
+  },
+  watch: {
+    selectedImages() {
+      this.selectedImages.length < 1
+      && this.newProduct.images.length < 1
+      && this.isImageBoxTouched
+        ? (this.imgWarning = true)
+        : (this.imgWarning = false);
     },
   },
   created() {
@@ -294,17 +368,16 @@ export default {
   beforeMount() {
     this.mode = this.$route.fullPath.split('/').pop();
     if (this.mode === 'edit') {
-      const product = this.$store.getters.products.find(
-        element => element._id == this.$route.params.id,
-      );
-      if (!product) {
-        this.$router.push('404aa');
+      const product = this.$store.getters.getSelectedProduct;
+      if (!product || product._id != this.$route.params.id) {
+        this.$router.push('404');
       } else {
         this.newProduct.title = product.title;
         this.newProduct.price = product.price;
         this.newProduct.location = product.location;
         this.newProduct.description = product.description;
         this.newProduct.images = product.images;
+        this.newProduct.category = product.category;
       }
     }
   },
@@ -373,7 +446,6 @@ export default {
 }
 .arrow_box-top {
   position: relative;
-  // background: #fbf6d5;
   border: 2px solid #dcb300;
 }
 .arrow_box-top:after,
@@ -429,5 +501,9 @@ export default {
   border-right-color: #dcb300;
   border-width: 13px;
   margin-top: -13px;
+}
+.image-uploader-error {
+  border: 2px solid rgba(255, 0, 0, 0.692);
+  border-radius: 5px;
 }
 </style>

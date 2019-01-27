@@ -64,13 +64,15 @@ export default {
   opacity: 0;
   visibility: hidden;
   transition: visibility 0.2s, opacity 0.2s;
+  top: 0;
+  left: 0;
 }
 .backdrop-sidenav-show {
   opacity: 1;
   visibility: visible;
 }
 nav {
-  font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+  // font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
   padding-top: 4rem; //For Top Header
   width: 5rem;
   @include respond(df, tab-p) {

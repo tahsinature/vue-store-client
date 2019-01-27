@@ -75,7 +75,12 @@ $hover-color: rgba(255, 255, 255, 0.425);
       display: flex;
       border-right: 1px solid rgb(56, 56, 56);
       border-left: 2px solid transparent;
+      align-items: center;
       h5 {
+        margin: 0;
+        @include respond(df, tab-p) {
+          font-size: 1rem;
+        }
         transition: color 0.2s;
       }
       &:hover {
@@ -86,6 +91,9 @@ $hover-color: rgba(255, 255, 255, 0.425);
       .logo {
         height: 2rem;
         margin-right: 0.5rem;
+        @include respond(df, tab-p) {
+          height: 1.5rem;
+        }
       }
     }
     .right {
@@ -101,6 +109,9 @@ $hover-color: rgba(255, 255, 255, 0.425);
         i {
           font-size: 2rem;
           position: relative;
+          @include respond(df, tab-p) {
+            font-size: 1.7rem;
+          }
           span {
             position: absolute;
             top: -50%;

@@ -1,7 +1,8 @@
 👉 z-index
+▶ app-loading: 80
 ▶ cart-backdrop: 90
-▶ .nav/header: 100
 ▶ sidenav: 90
+▶ .nav/header: 100
 
 👉 Fallback Reduced Color Set 1
 rgb(15,113,199)

@@ -2,11 +2,11 @@
   <div class="comment-wrap">
     <div class="comment-block">
       <p class="mb-1">
-        <strong>{{review.author}}</strong>
+        <strong>{{review.author.fullName}}</strong>
       </p>
       <p class="comment-text">{{review.text}}</p>
       <div class="bottom-comment">
-        <div class="comment-date">{{review.date | moment("dddd, MMMM Do YYYY, h:mms a")}}</div>
+        <div class="comment-date">{{review.createdAt | moment("MMMM Do YYYY")}}</div>
         <ul class="comment-actions">
           <li class="complain">Complain</li>
           <li class="reply">Reply</li>

@@ -47,11 +47,19 @@ export default {
 
 
 <style lang="scss" scoped>
+@import "../assets/sass/main";
 @import url("../../node_modules/slick-carousel/slick/slick.scss");
 .imageContainer {
   position: relative;
   img {
+    height: 300px;
     object-fit: cover;
+    @include respond(df, tab-l) {
+      height: 200px;
+    }
+    @include respond(df, tab-l) {
+      height: 200px;
+    }
   }
 }
 </style>

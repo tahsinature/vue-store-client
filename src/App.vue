@@ -1,10 +1,17 @@
 <template>
   <div>
+    <notifications group="app-notification" position="bottom right" animation-type="velocity"></notifications>
     <app-header></app-header>
     <app-cart></app-cart>
     <div class="content-field">
       <app-nav></app-nav>
-      <router-view></router-view>
+      <keep-alive>
+        <router-view
+          @onNotify="notify($event)"
+          @onNewPost="newPostNotification()"
+          @onPostEdit="editPostNotification($event)"
+        ></router-view>
+      </keep-alive>
     </div>
   </div>
 </template>
@@ -16,6 +23,36 @@ import SideNavVue from './components/SideNav.vue';
 import { productController } from './api';
 
 export default {
+  methods: {
+    newPostNotification() {
+      this.$notify({
+        group: 'app-notification',
+        title: 'Successful',
+        text:
+          "Your post is live now. <br> Don't forget to reply clients messages.",
+        duration: 5000,
+        type: 'success ',
+      });
+    },
+    editPostNotification(title) {
+      this.$notify({
+        group: 'app-notification',
+        title,
+        text: `Edit Post for <strong>${title}</strong> is successful. Have a good day.`,
+        duration: 5000,
+        type: 'success ',
+      });
+    },
+    notify(options) {
+      this.$notify({
+        group: 'app-notification',
+        title: options.title,
+        text: options.text,
+        duration: 5000,
+        type: options.type,
+      });
+    },
+  },
   components: {
     'app-header': HeaderVue,
     'app-cart': CartVue,
@@ -24,8 +61,8 @@ export default {
   async created() {
     const result = await productController.getAllProducts();
     if (result.status === 200) {
-      const products = result.data;
-      this.$store.dispatch('getAllProductsFromServer', products);
+      const { products } = result.data;
+      this.$store.dispatch('storeFetchedData', products);
       this.$emit('onProductLoad');
     }
   },

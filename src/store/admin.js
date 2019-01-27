@@ -1,19 +1,25 @@
-/* eslint-disable no-shadow */
 const state = {
-  user: null,
+  admin: null,
+  selectedUser: null,
 };
 const getters = {
   getAdmin(state) {
-    return state.user;
+    return state.admin;
+  },
+  getSelectedUser(state) {
+    return state.selectedUser;
   },
 };
 
 const mutations = {
   setAdmin(state, payload) {
-    state.user = payload;
+    state.admin = payload;
   },
   removeAdmin(state) {
-    state.user = null;
+    state.admin = null;
+  },
+  setSelectedUser(state, payload) {
+    state.selectedUser = payload;
   },
 };
 
@@ -23,6 +29,9 @@ const actions = {
   },
   removeAdmin({ commit }) {
     commit('removeAdmin');
+  },
+  setSelectedUser({ commit }, payload) {
+    commit('setSelectedUser', payload);
   },
 };
 

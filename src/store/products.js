@@ -3,16 +3,20 @@
 
 const state = {
   products: [],
+  selectedProduct: null,
 };
 
 const getters = {
   products(state) {
     return state.products;
   },
+  getSelectedProduct(state) {
+    return state.selectedProduct;
+  },
 };
 
 const mutations = {
-  getAllProductsFromServer(state, payload) {
+  storeFetchedData(state, payload) {
     state.products = payload;
   },
   addNewProduct(state, payload) {
@@ -26,11 +30,17 @@ const mutations = {
     // state.products.find(element => )
     console.log(payload);
   },
+  setSelectedProduct(state, payload) {
+    state.selectedProduct = payload;
+  },
+  removeSelectedProduct(state) {
+    state.selectedProduct = null;
+  },
 };
 
 const actions = {
-  getAllProductsFromServer({ commit }, payload) {
-    commit('getAllProductsFromServer', payload);
+  storeFetchedData({ commit }, payload) {
+    commit('storeFetchedData', payload);
   },
   addNewProduct({ commit }, payload) {
     commit('addNewProduct', payload);
@@ -40,6 +50,12 @@ const actions = {
   },
   editProduct({ commit }, payload) {
     commit('editProduct', payload);
+  },
+  setSelectedProduct({ commit }, payload) {
+    commit('setSelectedProduct', payload);
+  },
+  removeSelectedProduct({ commit }) {
+    commit('removeSelectedProduct');
   },
 };
 
