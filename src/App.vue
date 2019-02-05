@@ -17,10 +17,15 @@
 </template>
 
 <script>
+import socket from 'socket.io-client';
 import HeaderVue from './components/Header.vue';
 import CartVue from './components/Cart.vue';
+import eventBus from './main';
 import SideNavVue from './components/SideNav.vue';
-import { productController } from './api';
+import { productController, authController } from './api';
+
+// const socketOn = socket('http://localhost:3000');
+const socketOn = socket('http://vue-store-tahsin.herokuapp.com/');
 
 export default {
   methods: {
@@ -52,6 +57,7 @@ export default {
         type: options.type,
       });
     },
+    verifyAuthentication() {},
   },
   components: {
     'app-header': HeaderVue,
@@ -65,6 +71,35 @@ export default {
       this.$store.dispatch('storeFetchedData', products);
       this.$emit('onProductLoad');
     }
+    eventBus.$on('onNotify', ($event) => {
+      this.notify($event);
+    });
+    if (
+      this.$store.getters.allNotifications.length < 1
+      && eventBus.isLoggedIn
+    ) {
+      this.$store.dispatch('getNotificationsFromServer');
+      this.$store.dispatch('loadCart');
+    }
+
+    this.verifyAuthentication();
+  },
+  mounted() {
+    socketOn.addEventListener(
+      'newNotification',
+      (notification, adminId, createdPackage) => {
+        if (eventBus.isLoggedIn) {
+          if (adminId === this.$store.getters.getAdmin._id) {
+            // eventBus.$emit(
+            //   'onServerNotification',
+            //   notification,
+            //   createdPackage,
+            // );
+            this.$store.dispatch('storeLiveNotification', notification);
+          }
+        }
+      },
+    );
   },
 };
 </script>

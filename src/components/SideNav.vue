@@ -15,19 +15,49 @@
           <i class="fas fa-ad"></i>
           <p>My Ads</p>
         </router-link>
-        <router-link active-class="item-active" tag="li" class="link" to="/#2">
-          <i class="fab fa-facebook-messenger"></i>
+        <router-link
+          active-class="item-active"
+          tag="li"
+          class="link"
+          to="/chats"
+          @click.native="msgNotification = 0"
+        >
+          <i
+            class="fab fa-facebook-messenger"
+            :style="{color: msgNotification > 0 ? '#00ccff': ''}"
+          >
+            <span
+              v-if="!isNavExpanded && msgNotification > 0"
+              class="badge badge-light my-badge-1"
+            >{{msgNotification}}</span>
+          </i>
           <p>Messages</p>
+          <span
+            v-if="isNavExpanded && msgNotification > 0"
+            class="badge badge-light my-badge-2"
+          >{{msgNotification}}</span>
         </router-link>
-        <router-link active-class="item-active" tag="li" class="link" to="/#3">
-          <i class="fas fa-bell"></i>
+        <router-link active-class="item-active" tag="li" class="link" to="/notifications">
+          <i
+            class="fas fa-bell"
+            :style="{color: $store.getters.unreadNotifications.length > 0 ? '#d009ff': ''}"
+          >
+            <span
+              v-if="!isNavExpanded && $store.getters.unreadNotifications.length > 0"
+              class="badge badge-light my-badge-1"
+            >{{$store.getters.unreadNotifications.length}}</span>
+          </i>
           <p>Notification</p>
+          <span
+            v-if="isNavExpanded && $store.getters.unreadNotifications.length > 0"
+            class="badge badge-light my-badge-2"
+          >{{$store.getters.unreadNotifications.length}}</span>
         </router-link>
         <router-link active-class="item-active" tag="li" class="link" to="/me">
           <i class="fas fa-user"></i>
           <p>Account</p>
         </router-link>
-        <router-link active-class="item-active" tag="li" class="link" to="/#4">
+        <router-link active-class="item-active" tag="li" class="link" to="/about">
           <i class="fas fa-info-circle"></i>
           <p>About</p>
         </router-link>
@@ -37,17 +67,37 @@
 </template>
 
 <script>
+import socket from 'socket.io-client';
 import eventBus from '../main';
+
+// const socketOn = socket('http://localhost:3000');
+const socketOn = socket('http://vue-store-tahsin.herokuapp.com/');
 
 export default {
   data() {
     return {
       isNavExpanded: false,
+      msgNotification: 0,
     };
   },
   created() {
     eventBus.$on('onToggleNav', () => {
       this.isNavExpanded = !this.isNavExpanded;
+    });
+  },
+  mounted() {
+    this.$el.querySelectorAll('.link').forEach((x) => {
+      x.addEventListener('click', () => {
+        this.isNavExpanded = false;
+      });
+    });
+    socketOn.addEventListener('onNewMessage', (receiverId) => {
+      if (
+        eventBus.isLoggedIn
+        && receiverId === this.$store.getters.getAdmin._id
+      ) {
+        this.msgNotification += 1;
+      }
     });
   },
 };
@@ -101,9 +151,33 @@ nav {
     cursor: pointer;
     i {
       transition: color 0.2s;
+      position: relative;
+      .my-badge-1 {
+        position: absolute;
+        top: 7px;
+        right: 0;
+        transform: translate(50%, -50%);
+        padding: 12px;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 15px;
+        background: #ff0039d4;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
     p {
       font-size: 0.7rem;
+    }
+    .my-badge-2 {
+      background: #ff0039d4;
+      color: #fff;
+      margin-left: 0.5rem;
+      padding: 4px 9px;
+      font-size: 14px;
     }
     &:hover {
       transform: translateY(5px);
@@ -190,6 +264,7 @@ nav:hover {
   background: #fff;
   color: #000;
   margin-bottom: 0.5rem;
+
   p {
     transform: translateX(0) !important;
   }

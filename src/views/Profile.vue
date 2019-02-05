@@ -1,23 +1,42 @@
 <template>
   <div class="profile container">
+    <modal name="contact">
+      <app-contact
+        @SendMessageFromContactModel="SendMessageFromContactModel($event)"
+        @closeContactList="$modal.hide('contact')"
+        :contacts="getSelectedUser.contacts"
+      ></app-contact>
+    </modal>
+    <modal name="message">
+      <app-message
+        @closeSendMessage="$modal.hide('message')"
+        :user="userInfoToSendMsgFromContacts || getSelectedUser"
+      ></app-message>
+    </modal>
     <div class="left">
       <div class="img-box">
-        <img :src="getSelectedUser.profilePhoto.url" alt>
+        <img v-lazy="getSelectedUser.profilePhoto.url" alt>
       </div>
       <div class="recent-posts">
         <div class="heading">
           <small class="text-muted">Recent Posts</small>
           <hr>
         </div>
+        <div class="no-posts" v-if="getSelectedUser.products.length < 1">
+          <img src="https://pbs.twimg.com/media/CidJXBuUUAEgAYu.jpg" alt>
+        </div>
         <div
           class="recent-posts__post"
           v-for="product in getSelectedUser.products.slice(0,3)"
           :key="product._id"
         >
-          <h2>{{product.title}}</h2>
-          <span class="badge badge-primary">Available</span>
-          <p class="text-muted">Category: {{product.categoty}}</p>
-          <p class="text-muted">Posted on: {{product.createdAt | moment("from", "now")}}</p>
+          <router-link :to="'/products/' + product._id" tag="div">
+            <h2 :style="{color: product.isSold ? '#de7575' : '#758bde'}">{{product.title}}</h2>
+            <span class="badge badge-primary" v-if="!product.isSold">Available</span>
+            <span class="badge badge-danger" v-else>Sold</span>
+            <p class="text-muted">Category: {{product.category}}</p>
+            <p class="text-muted">Posted on: {{product.createdAt | moment("from", "now")}}</p>
+          </router-link>
         </div>
       </div>
     </div>
@@ -34,7 +53,7 @@
       <div class="control mt-4">
         <div class="admin-control" v-if="role === 'admin'">
           <div>
-            <button class="btn btn-info btn-block">
+            <button class="btn btn-info btn-block" @click="$modal.show('contact')">
               <i class="fas fa-users"></i>
               Contacts
             </button>
@@ -52,19 +71,15 @@
           </button>
         </div>
         <div class="user-control" v-if="role === 'user'">
-          <button class="cta msg">
+          <button class="cta msg" @click="$modal.show('message')">
             <i class="fas fa-comment-alt"></i>
             Send Message
           </button>
-          <!-- <button class="cta add-contact">
-          <i class="fas fa-user-plus"></i>
-          Add Contact
-          </button>-->
-          <button class="cta is-contact active">
-            <i class="fas fa-check"></i>
-            Contacts
+          <button class="cta is-contact" :class="{active: isFriend}" @click="toggleContact">
+            <i class="fas fa-check" v-if="isFriend"></i>
+            <i class="fas fa-user-plus" v-else></i>
+            {{isFriend ? 'Contacts' : 'Add to contact'}}
           </button>
-          <button class="cta report text-muted">Report User</button>
         </div>
       </div>
       <div class="details">
@@ -78,50 +93,58 @@
             About
           </button>
         </div>
-        <!-- ----- -->
+
         <div v-if="mode === 'products'" class="card-deck">
           <app-card
             v-for="product in getSelectedUser.products"
             :key="product._id"
             :product="product"
           ></app-card>
+          <div class="no-products text-muted mt-5" v-if="getSelectedUser.products.length < 1">
+            <h5>No Products</h5>
+          </div>
         </div>
         <div class="field" v-if="mode === 'about'">
-          <div class="mt-4">
+          <div class="mt-4 contact-info">
             <small>Contact Information</small>
             <div class="details-row">
-              <p>Username</p>
-              <p class="text-primary">{{getSelectedUser.userName}}</p>
+              <p>Username:</p>
+              <p
+                :style="{color: getSelectedUser.email ? '#468fdee3' : '#c1c1c1'}"
+              >{{getSelectedUser.userName ? getSelectedUser.userName : '[ Private ]'}}</p>
             </div>
             <div class="details-row">
-              <p>E-mail</p>
-              <p class="text-primary">{{getSelectedUser.email}}</p>
+              <p>E-mail:</p>
+              <p
+                :style="{color: getSelectedUser.email ? '#468fdee3' : '#c1c1c1'}"
+              >{{getSelectedUser.email ? getSelectedUser.email : '[ Private ]'}}</p>
             </div>
             <div class="details-row">
-              <p>Phone</p>
-              <p class="text-primary">{{getSelectedUser.contactNo}}</p>
+              <p>Phone:</p>
+              <p style="color: #468fdee3">{{getSelectedUser.contactNo}}</p>
             </div>
             <div class="details-row">
-              <p>Address</p>
-              <p>535 E 68th Street New York
-                <br>NY 1952- 293 23949
-              </p>
+              <p>Address:</p>
+              <p>{{getSelectedUser.address}}</p>
             </div>
           </div>
 
-          <div class="mt-4">
+          <div class="mt-5 basic-info">
             <small>Basic Information</small>
             <div class="details-row">
-              <p>Member Since</p>
+              <p>Member Since:</p>
               <p>{{getSelectedUser.createdAt | moment("MMMM Do YYYY")}}</p>
             </div>
             <div class="details-row">
-              <p>Gender</p>
+              <p>Last Activity:</p>
+              <p>{{getSelectedUser.updatedAt | moment("MMMM Do YYYY")}}</p>
+            </div>
+            <div class="details-row">
+              <p>Gender:</p>
               <p>{{getSelectedUser.gender}}</p>
             </div>
           </div>
         </div>
-        <!-- ---- -->
       </div>
     </div>
 
@@ -145,20 +168,37 @@
 
 <script>
 import { mapGetters } from 'vuex';
+import socket from 'socket.io-client';
+import axios from 'axios';
 import eventBus from '../main';
 import MyProductsCardVue from '../components/MyProductsCard.vue';
 import store from '../store/store';
 import { authController } from '../api';
+import ContactListVue from '../components/modals/ContactList.vue';
+import WriteMessageVue from '../components/modals/WriteMessage.vue';
+
+// const socketOn = socket('http://localhost:3000');
+const socketOn = socket('http://vue-store-tahsin.herokuapp.com/');
 
 export default {
   data() {
     return {
       role: undefined,
       mode: 'about',
+      userInfoToSendMsgFromContacts: undefined,
     };
   },
   components: {
     'app-card': MyProductsCardVue,
+    'app-contact': ContactListVue,
+    'app-message': WriteMessageVue,
+  },
+  watch: {
+    $route(to, from) {
+      to.fullPath.split('/').pop() === 'me'
+        ? (this.role = 'admin')
+        : (this.role = 'user');
+    },
   },
   beforeRouteEnter(to, from, next) {
     if (eventBus.isLoggedIn) {
@@ -169,7 +209,10 @@ export default {
       if (eventBus.profile.role === 'admin') {
         userId = store.getters.getAdmin._id;
       } else {
-        console.log(to.params.id); // Remaining
+        userId = to.params.id;
+        // ---
+        if (userId === store.getters.getAdmin._id) next('/me');
+        // ---
       }
       const user = store.getters.getSelectedUser;
       function getUserFromServer() {
@@ -179,8 +222,13 @@ export default {
             store.dispatch('setSelectedUser', data);
             next();
           })
-          .catch((err) => {
-            console.log(err.response); // Alert
+          .catch(({ response }) => {
+            eventBus.$emit('onNotify', {
+              title: 'No user found',
+              text: 'Sorry no user found with this given URL',
+              type: 'error',
+            });
+            next('404');
           });
       }
       if (user) {
@@ -194,8 +242,39 @@ export default {
   },
   computed: {
     ...mapGetters(['getSelectedUser']),
+    isFriend() {
+      return this.$store.getters.getAdmin.contacts.includes(
+        this.getSelectedUser._id,
+      );
+    },
   },
   methods: {
+    SendMessageFromContactModel(event) {
+      this.$modal.hide('contact');
+      this.userInfoToSendMsgFromContacts = event;
+      this.$modal.show('message');
+    },
+    toggleContact() {
+      const userId = this.getSelectedUser._id;
+      axios
+        .post('/contacts', { contactId: userId })
+        .then(({ data, status }) => {
+          if (status !== 200) {
+            return eventBus.$emit('onNotify', {
+              title: 'Something went wrong adding/removing contact',
+              text: 'Please refresh the page',
+              type: 'error',
+            });
+          }
+          if (data === 'add') {
+            this.$store.dispatch('addFriend', userId);
+          }
+          if (data === 'remove') {
+            this.$store.dispatch('removeFriend', userId);
+          }
+        })
+        .catch(err => console.log(err));
+    },
     logout() {
       localStorage.removeItem('token');
       this.$store.dispatch('removeAdmin');
@@ -206,7 +285,17 @@ export default {
   },
   created() {
     this.role = eventBus.profile.role;
-    // console.log(this.getSelectedUser);
+  },
+  mounted() {
+    socketOn.addEventListener('userOnline', (id) => {
+      this.$store.dispatch('setStatusOnline', id);
+    });
+    socketOn.addEventListener('userOffline', (id) => {
+      this.$store.dispatch('setStatusOffline', id);
+    });
+  },
+  deactivated() {
+    this.$destroy();
   },
 };
 </script>
@@ -256,6 +345,14 @@ export default {
     }
   }
   .recent-posts {
+    .no-posts {
+      width: 100%;
+      text-align: center;
+      img {
+        border-radius: 10px;
+        width: 70%;
+      }
+    }
     @include respond(df, tab-p) {
       display: none;
     }
@@ -280,6 +377,9 @@ export default {
       border-radius: 10px;
       padding: 0.4rem;
       border: 3px solid transparent;
+      p {
+        font-size: 0.8rem;
+      }
       &:hover {
         box-shadow: inset 0px 0px 300px 104px rgb(255, 255, 255);
         border-color: rgba(167, 167, 167, 0.295);
@@ -362,6 +462,11 @@ export default {
       }
     }
   }
+  // .user-control {
+  //   @include respond(df, tab-p) {
+  //     display: flex;
+  //   }
+  // }
   @include respond(df, tab-p) {
     text-align: center;
   }
@@ -369,46 +474,39 @@ export default {
 .cta {
   margin: 0 0.5rem;
   padding: 0.5rem 1rem;
-  @include respond(df, tab-p) {
-    &:first-of-type {
-      margin-right: 1rem;
-    }
-    &:last-of-type {
-      display: block;
-      margin: auto;
-    }
-  }
   @include respond(df, tab-l) {
     padding: 0.5rem 0.5rem;
-    margin: 0;
+    // margin: 0;
   }
   border-radius: 5px;
   background: none;
-  border: none;
+  border: 2px solid #4267b2;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.8rem;
+  font-weight: bold;
   transition: all 0.3s;
-  color: #424242;
+  color: #4267b2;
 
   &:active,
   &:focus {
     outline: none;
   }
   &:hover {
-    &:not(.report) {
-      background: #e3f2fd;
-      color: #424242;
-    }
+    color: #0000008c;
+    border-color: #0000008c;
   }
 }
 .cta.active {
-  background: #3ca4f494;
+  background: #4267b2;
+  border: 2px solid #4267b2;
   color: #fff;
   &:hover {
-    background: #3ca4f4cb;
+    background: #365899;
+    border-color: #365899;
   }
 }
 .details {
+  font-weight: 500;
   margin-top: 2rem;
   .tab {
     border-bottom: 1px solid rgba(128, 128, 128, 0.247);
@@ -448,6 +546,20 @@ export default {
       border-bottom: 1px solid rgba(128, 128, 128, 0.247);
     }
   }
+  .contact-info {
+    @include respond(mf, tab-p) {
+      padding-left: 1rem;
+      border-left: 3px solid #008e371a;
+      color: #000000ad;
+    }
+  }
+  .basic-info {
+    @include respond(mf, tab-p) {
+      padding-left: 1rem;
+      border-left: 3px solid #b13c841c;
+      color: #000000ad;
+    }
+  }
   .details-row {
     display: flex;
     margin-bottom: 0.4rem;
@@ -468,6 +580,10 @@ export default {
       font-size: 80%;
       h5 {
         font-size: 1rem;
+      }
+      img {
+        height: 150px;
+        object-fit: cover;
       }
       .card-text-bottom {
         display: none;

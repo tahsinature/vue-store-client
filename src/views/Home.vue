@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="mt-4 mb-4">
     <app-loading
       :active.sync="isLoading"
       :is-full-page="false"
@@ -89,7 +89,6 @@ export default {
             : 'All Catrgories';
           const { products } = result.data;
           this.$store.dispatch('storeFetchedData', products);
-          // eslint-disable-next-line no-unused-expressions
           this.hasNextPage = result.data.paginationInfo.hasNextPage;
         })
         .catch(({ response }) => {

@@ -6,10 +6,13 @@ import Notifications from 'vue-notification';
 import velocity from 'velocity-animate';
 import VModal from 'vue-js-modal';
 import Loading from 'vue-loading-overlay';
+import VueLazyload from 'vue-lazyload';
+import VueChatScroll from 'vue-chat-scroll';
 import App from './App.vue';
 import router from './router';
 import store from './store/store';
 import 'vue-loading-overlay/dist/vue-loading.css';
+import { authController } from './api';
 
 Vue.prototype.$http = require('axios');
 
@@ -19,10 +22,11 @@ Vue.use(VueFlashMessage);
 Vue.use(Notifications, { velocity });
 Vue.use(VeeValidate);
 Vue.use(Loading);
+Vue.use(VueLazyload, { loading: 'https://i.gifer.com/8REG.gif', error: 'https://png.pngtree.com/svg/20170821/_failed_to_load_pictures_372158.png', attempt: 10 });
+Vue.use(VueChatScroll);
 Vue.use(VModal, { dynamic: true });
 Vue.use(require('vue-moment'));
 
-// Vue.use(VModal, { dialog: true });
 
 export default new Vue({
   data: {
@@ -30,15 +34,18 @@ export default new Vue({
     profile: {
       role: undefined,
     },
-    url: {
-      root: 'http://localhost:3000/',
-      productsUrl: 'http://localhost:3000/products',
-      authUrl: 'http://localhost:3000/auth',
-    },
   },
 });
 
+
 Vue.component('app-loading', Loading);
+// const token = localStorage.getItem('token');
+// authController.authenticateUser(token).then(({ data, status }) => {
+//   if (status === 200) {
+//     store.dispatch('setAdmin', data);
+//     eventBus.isLoggedIn = true;
+//   }
+// });
 new Vue({
   router,
   store,

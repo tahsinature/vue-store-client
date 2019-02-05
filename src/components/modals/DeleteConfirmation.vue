@@ -4,24 +4,25 @@
       <h4>{{product.title}}</h4>
       <hr>
       <img
-        :src="(product.images[0]) ? product.images[0].url : 'https://www.shopgro.in/img/no-image.png'"
+        v-lazy="(product.images[0]) ? product.images[0].url : 'https://www.shopgro.in/img/no-image.png'"
         alt
       >
       <hr>
       <div class="statistic">
         <div class="statistic-box">
           <i class="fas fa-heart"></i>
-          <span>5</span>
+          <span>{{product.likes}}</span>
         </div>
         <div class="statistic-box">
           <i class="fas fa-comment-dots"></i>
-          <span>5</span>
+          <span>{{product.reviews.length}}</span>
         </div>
       </div>
     </div>
 
     <div class="text-center right">
       <div class="mb-3">
+        <h3 class="text-danger">Remove</h3>
         <p>This ad is active for last 9 days.
           <br>Are you sure deleting this ad?
         </p>
@@ -59,12 +60,15 @@ export default {
   align-items: center;
   text-align: center;
   .left {
+    h4 {
+      font-family: "Josefin Sans", sans-serif;
+      color: brown;
+    }
     img {
       width: 50%;
       height: 50%;
       object-fit: cover;
       border-radius: 10px;
-      // margin-top: auto;
     }
     .statistic {
       display: flex;
@@ -89,6 +93,12 @@ export default {
     button:first-of-type {
       margin-right: 0.4rem;
     }
+    .text-danger {
+      margin-top: 1rem;
+      @include respond(df, tab-p) {
+        margin-bottom: -0.5rem;
+      }
+    }
     p {
       @include respond(df, tab-p) {
         margin: 1rem 0;
@@ -103,8 +113,6 @@ export default {
     @include respond(df, mbl) {
       width: 100%;
     }
-    // height: 100%;
   }
-  // display: fl
 }
 </style>

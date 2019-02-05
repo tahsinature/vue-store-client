@@ -1,6 +1,3 @@
-/* eslint no-underscore-dangle: 0 */
-/* eslint no-shadow: ["error", { "allow": ["state"] }] */
-
 const state = {
   products: [],
   selectedProduct: null,
@@ -36,6 +33,14 @@ const mutations = {
   removeSelectedProduct(state) {
     state.selectedProduct = null;
   },
+  likeProduct(state, payload) {
+    state.selectedProduct.likers.push(payload);
+    state.selectedProduct.likes += 1;
+  },
+  dislikeProduct(state, payload) {
+    state.selectedProduct.likers.pop(payload);
+    state.selectedProduct.likes -= 1;
+  },
 };
 
 const actions = {
@@ -56,6 +61,12 @@ const actions = {
   },
   removeSelectedProduct({ commit }) {
     commit('removeSelectedProduct');
+  },
+  likeProduct({ commit }, payload) {
+    commit('likeProduct', payload);
+  },
+  dislikeProduct({ commit }, payload) {
+    commit('dislikeProduct', payload);
   },
 };
 

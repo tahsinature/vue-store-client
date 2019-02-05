@@ -1,24 +1,28 @@
-/* eslint no-shadow: ["error", { "allow": ["state"] }] */
+import { cartController } from '../api';
 
 const state = {
-  products: [],
+  cartProducts: [],
+  cartStatus: '', // saved, loaded, change
 };
 
 const getters = {
   numOfItemInCart(state) {
-    return state.products.length;
+    return state.cartProducts.length;
   },
   getCartItems(state) {
-    return state.products;
+    return state.cartProducts;
   },
   totalCartPrice(state) {
-    return state.products.reduce((pre, cur) => pre + cur.totalPrice(), 0);
+    return state.cartProducts.reduce((pre, cur) => pre + cur.totalPrice(), 0);
+  },
+  cartStatus(state) {
+    return state.cartStatus;
   },
 };
 
 const mutations = {
   addNew(state, payload) {
-    let newItem = state.products.find(product => product._id === payload.target._id);
+    let newItem = state.cartProducts.find(product => product._id === payload.target._id);
     if (newItem) {
       newItem.quantity += payload.quantity;
       return;
@@ -36,21 +40,44 @@ const mutations = {
       }
     }
     newItem = new NewItem(payload.target);
-    state.products.unshift(newItem);
+    state.cartProducts.unshift(newItem);
   },
   removeItem(state, payload) {
-    /* eslint no-underscore-dangle: 0 */
-    const item = state.products.find(product => product._id === payload);
-    state.products.splice(state.products.indexOf(item), 1);
+    const item = state.cartProducts.find(product => product._id === payload);
+    state.cartProducts.splice(state.cartProducts.indexOf(item), 1);
+  },
+  changeCartStatus(state, payload) {
+    state.cartStatus = payload;
   },
 };
 
 const actions = {
   addToCart({ commit }, payload) {
     commit('addNew', payload);
+    commit('changeCartStatus', 'change');
   },
   removeFromCart({ commit }, id) {
     commit('removeItem', id);
+    commit('changeCartStatus', 'change');
+  },
+  changeCartStatus({ commit }, payload) {
+    commit('changeCartStatus', payload);
+  },
+  saveCart({ commit }) {
+    cartController.saveCart({ cartItems: state.cartProducts }).then(({ data }) => {
+      commit('changeCartStatus', 'saved');
+    });
+  },
+  loadCart({ commit }) {
+    cartController.getCart().then(({ data }) => {
+      data.forEach((x) => {
+        commit('addNew', {
+          quantity: x.quantity,
+          target: x.product,
+        });
+      });
+      commit('changeCartStatus', 'loaded');
+    });
   },
 };
 

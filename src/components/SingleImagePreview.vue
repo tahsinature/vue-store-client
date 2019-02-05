@@ -1,6 +1,7 @@
 <template>
   <div class="single-image-box">
-    <img :src="image" class="img-thumbnail">
+    <!-- <img :src="image" class="img-thumbnail"> -->
+    <img v-lazy="image" class="img-thumbnail">
     <div class="delete-img" @click="removeImage()">
       <i class="fas fa-trash"></i>
     </div>

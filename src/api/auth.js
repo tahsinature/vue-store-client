@@ -11,6 +11,7 @@ const checkAvailablity = (data) => {
   generateURL();
   return axios.get(URL);
 };
+const editUser = data => axios.put(`${url}`, data);
 const registerUser = data => axios.post(`${url}/register`, data);
 const authenticateUser = token => axios.post(`${url}/authenticate`, token);
 const loginUser = credentials => axios.post(`${url}/login`, credentials);
@@ -22,4 +23,5 @@ module.exports = {
   loginUser,
   getUser,
   checkAvailablity,
+  editUser,
 };

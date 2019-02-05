@@ -1,10 +1,11 @@
 <template>
   <div class="card" @click="gotoDetails()">
     <img
-      :src="(product.images[0]) ? product.images[0].url : 'https://www.shopgro.in/img/no-image.png'"
+      v-lazy="(product.images[0]) ? product.images[0].url : 'https://www.shopgro.in/img/no-image.png'"
       class="card-img-top img-thumbnail"
     >
     <div class="card-body">
+      <div class="sold-badge" v-if="product.isSold">Sold</div>
       <h5 class="card-title">{{product.title}}</h5>
       <p class="card-text">${{product.price}}</p>
       <div class="d-flex justify-content-between">
@@ -54,6 +55,13 @@ export default {
   overflow: hidden;
   cursor: pointer;
   transition: all 0.3s;
+  img {
+    height: 300px;
+    object-fit: cover;
+    @include respond(df, mbl) {
+      height: 250px;
+    }
+  }
   &:hover {
     transform: scale(1.02);
     transform-origin: top;
@@ -62,6 +70,7 @@ export default {
   }
 }
 .card-body {
+  position: relative;
   display: flex;
   flex-direction: column;
   padding: 0.8rem;
@@ -95,5 +104,16 @@ export default {
       color: #fff;
     }
   }
+}
+.sold-badge {
+  background: red;
+  color: #fff;
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(0, -100%);
+  padding: 0 0.7rem;
+  font-family: "ZCOOL QingKe HuangYou", cursive;
+  border-radius: 8px 0 0 0;
 }
 </style>

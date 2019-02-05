@@ -1,5 +1,5 @@
 <template>
-  <div class="container product-details mt-4" v-if="product">
+  <div class="container product-details mt-4 mb-4" v-if="product">
     <notifications group="auth" position="bottom right" animation-type="velocity"></notifications>
     <modal name="confirm-delete">
       <modal-delete
@@ -15,31 +15,62 @@
       </div>
       <div class="product-details__top__content">
         <h1 class="text-center">{{product.title}}</h1>
-        <small class="text-muted">Posted on: 2 Jan 2018</small>
+        <router-link
+          :to="`/profile/${product.author._id}`"
+          tag="small"
+          class="text-muted"
+          style="cursor: pointer"
+        >
+          <i class="fas fa-user-shield"></i>
+          {{product.author.fullName}}
+        </router-link>
         <br>
-        <small class="text-muted">Category: {{product.category}}</small>
-        <div class="like-box">
-          <button class="btn btn-sm btn-primary mt-2 mb-2" @click="likeProduct()">
+        <small class="text-muted">
+          <i class="fas fa-clock mr-1"></i>
+          {{product.createdAt | moment("dddd, MMMM Do YYYY")}}
+        </small>
+        <br>
+        <small class="text-muted">
+          <i class="fas fa-list-ul mr-1"></i>
+          {{product.category}}
+        </small>
+        <br>
+        <small class="text-muted">
+          <i class="fas fa-battery-full mr-1" v-if="product.condition === 'new'"></i>
+          <i class="fas fa-battery-half mr-1" v-else></i>
+          {{product.condition}}
+        </small>
+        <div class="like-box" v-if="!product.isSold">
+          <button class="btn btn-sm btn-primary mt-2 mb-2" @click="toggleLike()">
             <i v-if="isLiked" class="fas fa-thumbs-up"></i>
             <i v-else class="far fa-thumbs-up"></i>
-            {{product.likes}} Likes
+            {{product.likes}} {{isLiked ? "Unlike" : "Like"}}
           </button>
+          <button
+            class="btn btn-secondary btn-sm ml-2 flex-grow-1"
+            @click="markAsSold(product._id)"
+            v-if="isAdmin"
+          >Mark As Sold</button>
         </div>
-        <div class="review-box" ref="reviewBox">
+        <div class="review-box" ref="reviewBox" v-if="!product.isSold">
           <a class="mr-3">{{product.reviews.length}} Reviews</a>
           <a
             @mouseenter="$refs.reviewBox.style.backgroundColor = '#f44336'; $refs.reviewBox.style.borderColor = '#f44336'"
             @mouseleave="$refs.reviewBox.style.backgroundColor = '#00bcd4'; $refs.reviewBox.style.borderColor = '#00bcd4'"
+            @click="turnOnReviewMode()"
           >Add Your Review</a>
         </div>
         <div class="product-details__top__content--price">
           <h1>${{Number(product.price).toFixed(2)}}</h1>
-          <div>
+          <div v-if="!product.isSold">
             <p>IN STOCK</p>
             <p>SKU#: 23-WBK92</p>
           </div>
+          <div v-if="product.isSold" class="stock-out">
+            <p>Out of stock</p>
+          </div>
         </div>
-        <div class="action-non-admin" v-if="!isAdmin">
+        <div class="action-non-admin" v-if="!isAdmin && !product.isSold">
           <div class="input-group add-to-cart">
             <input
               type="number"
@@ -57,16 +88,17 @@
               >Add To Cart</button>
             </div>
           </div>
-          <button class="btn btn-primary contact">
-            <i class="fas fa-phone"></i> +628... (Click To Show)
+          <button class="btn btn-primary contact" @click="isContactShown = true">
+            <i class="fas fa-phone"></i>
+            {{isContactShown ? product.author.contactNo : `${product.author.contactNo.substr(0, 5) + ' (Click to show)'}`}}
           </button>
         </div>
         <div class="controller" v-else>
-          <button class="btn btn-outline-info" @click="editProduct()">
+          <button class="btn btn-outline-info" @click="editProduct()" v-if="!product.isSold">
             <i class="fas fa-edit"></i>
             Edit Product
           </button>
-          <button class="btn btn-danger" @click="$modal.show('confirm-delete')">
+          <button class="btn btn-danger" v-if="isAdmin" @click="$modal.show('confirm-delete')">
             <i class="fas fa-trash-alt"></i>
             Remove Product
           </button>
@@ -74,7 +106,7 @@
       </div>
     </div>
 
-    <div class="product-details__bottom">
+    <div class="product-details__bottom" v-if="!product.isSold">
       <div class="card text-center">
         <div class="card-header">
           <ul class="nav nav-tabs card-header-tabs">
@@ -98,39 +130,52 @@
           </div>
           <div class="card-body__review" v-if="mode === 'review'">
             <div class="comments">
-              <app-comment v-for="(review, index) in product.reviews" :review="review" :key="index"></app-comment>
+              <app-comment
+                v-for="(review, index) in product.reviews"
+                :review="review"
+                :key="index"
+                @onRemove="removeReview($event)"
+                @onLike="likeReview($event)"
+              ></app-comment>
             </div>
           </div>
           <div class="card-body__review" v-if="mode === 'makeReview' && !isAdmin">
             <div class="form-group">
-              <!-- <input type="text" class="form-control"> -->
               <textarea
                 rows="3"
                 class="form-control"
                 data-gramm_editor="false"
                 v-model="reviewText"
+                id="reviewBox"
               ></textarea>
-              <button class="btn btn-outline-secondary btn-block mt-3" @click="makeReview()">Review</button>
+              <button
+                class="btn btn-outline-secondary btn-block mt-3"
+                @click="makeReview()"
+                :disabled="!reviewText"
+              >Review</button>
             </div>
           </div>
         </div>
       </div>
     </div>
     <!-- temp -->
-    <div class="text-center mt-5">
+    <!-- <div class="text-center mt-5">
       <button class="btn btn-primary" @click="isAdmin = !isAdmin">Role Switcher</button>
-    </div>
+    </div>-->
   </div>
 </template>
 
 <script>
-/* eslint no-underscore-dangle: 0 */
 import { mapGetters } from 'vuex';
-import { productController, reviewController } from '../api';
+import socket from 'socket.io-client';
+import { productController, reviewController, likeController } from '../api';
 import ProductDetailsImageVue from '../components/ProductDetailsImage.vue';
 import CommentVue from '../components/Comment.vue';
 import DeleteConfirmationVue from '../components/modals/DeleteConfirmation.vue';
-// import eventBus from '../main';
+import eventBus from '../main';
+
+// const socketOn = socket('http://localhost:3000');
+const socketOn = socket('http://vue-store-tahsin.herokuapp.com/');
 
 export default {
   components: {
@@ -145,11 +190,23 @@ export default {
       addToCartQty: 1,
       isAdmin: false,
       reviewText: '',
-      isLiked: false,
+      isContactShown: false,
     };
   },
   methods: {
-    likeProduct() {
+    turnOnReviewMode() {
+      if (this.isAdmin) {
+        return this.$emit('onNotify', {
+          title: 'Oops, Review on own product 😟',
+          text: "Sorry, you can't review your own product",
+          type: 'error',
+        });
+      }
+      this.mode = 'makeReview';
+      this.$router.push('#reviewBox');
+      this.$router.push('');
+    },
+    toggleLike() {
       if (this.isAdmin) {
         return this.$emit('onNotify', {
           title: 'Oops, Like on own product 😟',
@@ -157,10 +214,38 @@ export default {
           type: 'error',
         });
       }
-      console.log('Like');
-      this.isLiked = true;
+      if (!eventBus.isLoggedIn) {
+        return eventBus.$emit('onNotify', {
+          title: 'Authentication Needed',
+          text: "You've to be logged in to like a product.",
+          type: 'error',
+        });
+      }
+      likeController
+        .toggleLike({
+          productId: this.product._id,
+          likerId: this.getAdmin._id,
+        })
+        .then(({ data }) => {
+          if (data === 'Liked') {
+            this.$store.dispatch('likeProduct', this.getAdmin._id);
+          } else if (data === 'Disliked') {
+            this.$store.dispatch('dislikeProduct', this.getAdmin._id);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
     makeReview() {
+      const vm = this;
+      function failNotify() {
+        vm.$emit('onNotify', {
+          title: 'Failed to review on this product',
+          text: 'Something went wrong with your authentication',
+          type: 'error',
+        });
+      }
       const review = {
         productId: this.product._id,
         text: this.reviewText,
@@ -169,15 +254,64 @@ export default {
         .makeReview(review)
         .then(({ data }) => {
           this.reviewText = '';
-          this.product.reviews.push(data);
           this.mode = 'review';
+          socketOn.emit('onReviewMade', review.productId, data);
         })
         .catch(({ response }) => {
+          failNotify();
           console.log(response);
+        });
+    },
+    removeReview(id) {
+      reviewController.removeReview(id).then(({ data }) => {
+        this.product.reviews.splice(
+          this.product.reviews.indexOf(
+            this.product.reviews.find(ele => ele._id === id),
+          ),
+          1,
+        );
+      });
+    },
+    likeReview(id) {
+      if (!eventBus.isLoggedIn) {
+        return eventBus.$emit('onNotify', {
+          title: 'Authentication Needed',
+          text: "You've to be logged in to like a review.",
+          type: 'error',
+        });
+      }
+      reviewController
+        .likeReview(id)
+        .then(() => {})
+        .catch(() => {
+          eventBus.$emit('onNotify', {
+            title: 'Failed To Like this review',
+            text: 'Please try again later',
+            type: 'error',
+          });
         });
     },
     editProduct() {
       this.$router.push(`/products/${this.product._id}/edit`);
+    },
+    async markAsSold(id) {
+      productController.markAsSold(id).then(({ data, status }) => {
+        if (status === 200) {
+          this.product.isSold = true;
+          return eventBus.$emit('onNotify', {
+            type: 'success',
+            title: 'Congratulations on your sell.',
+            text: `You just sold your product <strong style="color: yellow;">${
+              data.title
+            }</strong>`,
+          });
+        }
+        eventBus.$emit('onNotify', {
+          type: 'error',
+          title: 'Mark as sold failed',
+          text: 'Something went wrong.',
+        });
+      });
     },
     async removeProduct() {
       productController
@@ -199,6 +333,13 @@ export default {
         });
     },
     addToCart() {
+      if (!eventBus.isLoggedIn) {
+        return eventBus.$emit('onNotify', {
+          title: 'Authentication Needed',
+          text: "You 've to be logged in to use cart.",
+          type: 'error',
+        });
+      }
       this.$store.dispatch('addToCart', {
         quantity: this.addToCartQty,
         target: this.product,
@@ -206,12 +347,26 @@ export default {
       this.addToCartQty = 1;
     },
     getSelectedProductFromStore() {
-      this.product = this.getSelectedProduct;
-      this.isAdmin = this.getAdmin._id === this.getSelectedProduct.author;
+      if (this.getSelectedProduct) {
+        this.product = this.getSelectedProduct;
+        if (this.getAdmin) {
+          // eslint-disable-next-line no-multi-spaces
+          return (this.isAdmin =            this.getAdmin._id === this.getSelectedProduct.author._id);
+        }
+        this.isAdmin = false;
+      }
     },
+  },
+  deactivated() {
+    this.$destroy();
   },
   computed: {
     ...mapGetters(['getSelectedProduct', 'getAdmin']),
+    isLiked() {
+      return this.getAdmin
+        ? this.getSelectedProduct.likers.includes(this.getAdmin._id)
+        : false;
+    },
   },
   watch: {
     $route(to, from) {
@@ -221,12 +376,39 @@ export default {
   created() {
     this.getSelectedProductFromStore();
   },
+  mounted() {
+    socketOn.on('onReviewMade', (productId, review) => {
+      if (productId === this.product._id) {
+        this.product.reviews.unshift(review);
+      }
+    });
+    socketOn.on('newNotification', (notification, adminId, createdPackage) => {
+      if (
+        notification.notificationType === 'review-like'
+        && notification.product._id === this.product._id
+      ) {
+        this.product.reviews
+          .find(ele => ele._id === createdPackage._id)
+          .likers.push(notification.user._id);
+      }
+      if (
+        notification.notificationType === 'review-unlike'
+        && notification.product._id === this.product._id
+      ) {
+        this.product.reviews
+          .find(ele => ele._id === createdPackage._id)
+          .likers.pop(notification.user._id);
+      }
+    });
+  },
 };
 </script>
 
 <style lang="scss" scoped>
 @import "../assets/sass/_media.scss";
+
 .product-details {
+  font-family: "Roboto Condensed", sans-serif;
   .product-details__top {
     display: grid;
     align-items: center;
@@ -252,8 +434,6 @@ export default {
         margin-right: 0;
       }
       p {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
         font-size: 0.8rem;
         color: rgb(65, 28, 28);
         background: rgba(0, 0, 0, 0.151);
@@ -284,6 +464,7 @@ export default {
         button {
           display: flex;
           align-items: center;
+          justify-content: center;
           &:hover i {
             transform: scale(1.2);
           }
@@ -315,6 +496,7 @@ export default {
         a:last-of-type {
           color: #e7edee;
           cursor: pointer;
+          margin: auto;
         }
       }
       .action-non-admin {
@@ -346,6 +528,13 @@ export default {
         border-bottom: 1px solid rgba(167, 167, 167, 0.541);
         padding: 0.5rem 0;
         margin-top: 2rem;
+        .stock-out {
+          background: #c82333;
+          padding: 0.3rem;
+          color: #fff;
+          font-size: 1.5rem;
+          border-radius: 5px;
+        }
         div {
           font-size: 0.8rem;
           text-align: right;

@@ -6,13 +6,26 @@ import { authController, productController } from './api';
 import eventBus from './main';
 import store from './store/store';
 
-axios.defaults.baseURL = 'http://localhost:3000';
+const token = localStorage.getItem('token');
+
+axios.defaults.baseURL = 'http://vue-store-tahsin.herokuapp.com/';
+axios.defaults.headers.common['x-auth-token'] = token;
+
+// axios.defaults.baseURL = 'http://localhost:3000';
 
 Vue.use(Router);
 
 const router = new Router({
   mode: 'history',
   base: process.env.BASE_URL,
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition;
+    }
+    if (to.hash) {
+      return { selector: to.hash };
+    }
+  },
   routes: [
     {
       path: '/',
@@ -33,7 +46,6 @@ const router = new Router({
         const productId = to.params.id;
         productController
           .getSingleProduct(productId)
-          // eslint-disable-next-line consistent-return
           .then((result) => {
             if (result.data.author == admin._id) {
               return next();
@@ -85,6 +97,11 @@ const router = new Router({
       component: () => import('./views/MyProducts.vue'),
     },
     {
+      path: '/chats',
+      name: 'chats',
+      component: () => import('./views/Chat.vue'),
+    },
+    {
       path: '/register',
       name: 'register',
       component: () => import('./views/ProfileControl.vue'),
@@ -95,38 +112,48 @@ const router = new Router({
       component: () => import('./views/ProfileControl.vue'),
     },
     {
+      path: '/notifications',
+      name: 'notification',
+      component: () => import('./views/Notification.vue'),
+    },
+    {
+      path: '/about',
+      name: 'about',
+      component: () => import('./views/About.vue'),
+    },
+    {
       path: '/*',
       name: '404',
       component: () => import('./views/404.vue'),
     },
-    // {
-    //   path: '/about',
-    //   name: 'about',
-    //   // route level code-splitting
-    //   // this generates a separate chunk(about.[hash].js) for this route
-    //   // which is lazy - loaded when the route is visited.
-    // component: () => import(/* webpackChunkName: "about" */ './views/About.vue'),
-    // },
   ],
 });
-router.beforeEach((to, from, next) => {
-  next();
-  const token = localStorage.getItem('token');
-  if (token) {
-    axios.defaults.headers = {
-      'x-auth-token': token,
-    };
-    authController
-      .authenticateUser(token)
-      .then((resp) => {
-        store.dispatch('setAdmin', resp.data);
-        eventBus.isLoggedIn = true;
-        next();
-      })
-      .catch(() => next());
-  } else {
-    next();
-  }
-});
+
+// router.beforeEach((to, from, next) => {
+
+// }
+
+
+// router.beforeEach((to, from, next) => {
+//   next();
+//   const token = localStorage.getItem('token');
+//   if (token) {
+//     axios.defaults.headers = {
+//       'x-auth-token': token,
+//     };
+//     authController
+//       .authenticateUser(token)
+//       .then((resp) => {
+//         store.dispatch('setAdmin', resp.data);
+//         eventBus.isLoggedIn = true;
+//         next();
+//       })
+//       .catch(({ response }) => {
+//         next();
+//       });
+//   } else {
+//     next();
+//   }
+// });
 
 export default router;

@@ -2,10 +2,18 @@
   <div class="backdrop-cart" @click="isShown = false" :class="{'backdrop-cart-show': isShown}">
     <div class="cart" :class="{'show-cart': isShown}" @click.stop>
       <div class="container">
-        <h2 class="text-center">Items in your Bag</h2>
+        <div class="header text-center">
+          <h3 class="text-center">Items in your Bag</h3>
+          <button
+            class="btn btn-sm"
+            :class="{'btn-success': cartStatus === 'saved', 'btn-primary': cartStatus === 'loaded', 'btn-danger': cartStatus === 'change', }"
+            @click="saveCart()"
+            v-if="saveStatus"
+          >{{saveStatus}}</button>
+        </div>
         <hr>
         <div class="cart-products">
-          <app-cart v-for="item in getCartItems" :key="item._id" :item="item"></app-cart>
+          <app-cart-product v-for="item in getCartItems" :key="item._id" :item="item"></app-cart-product>
         </div>
         <div class="cart-content">
           <div class="non-empty" v-if="getCartItems.length > 0">
@@ -15,7 +23,7 @@
               <p class="text-danger">Free Shipping: 0.00</p>
               <p class="text-primary">Estimated Tax: 0.00</p>
               <hr>
-              <h2>Total ${{totalCartPrice.toFixed(2)}}</h2>
+              <h4>Total ${{totalCartPrice.toFixed(2)}}</h4>
             </div>
             <hr>
             <div class="checkout">
@@ -23,7 +31,7 @@
             </div>
           </div>
           <div class="empty" v-else>
-            <h3 class="mb-4">Cart is empty</h3>
+            <h4 class="mb-4">Cart is empty</h4>
             <img src="https://freelor.com/images/cart-empty.png" alt>
           </div>
         </div>
@@ -45,12 +53,23 @@ export default {
     };
   },
   components: {
-    'app-cart': CartProductVue,
+    'app-cart-product': CartProductVue,
+  },
+  methods: {
+    saveCart() {
+      this.$store.dispatch('saveCart');
+    },
   },
   computed: {
-    ...mapGetters(['getCartItems', 'totalCartPrice']),
+    ...mapGetters(['getCartItems', 'totalCartPrice', 'cartStatus']),
+    saveStatus() {
+      if (this.cartStatus === 'loaded') return 'Data Loaded From Your Account';
+      if (this.cartStatus === 'saved') return 'Cart Saved';
+      if (this.cartStatus === 'change') return 'Save Cart';
+      return null;
+    },
   },
-  created() {
+  mounted() {
     eventBus.$on('onShowCart', () => {
       this.isShown = !this.isShown;
     });
@@ -86,6 +105,10 @@ export default {
   top: 0;
   right: 0;
   width: 400px;
+  // max-width: 400px;
+  @include respond(df, mbl) {
+    width: 100%;
+  }
   .cart-products {
     max-height: 50vh;
     overflow-y: scroll;

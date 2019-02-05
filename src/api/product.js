@@ -14,6 +14,7 @@ const getAllProducts = (page, query) => {
 };
 const newProduct = productDetails => axios.post(url, productDetails);
 const editProduct = (id, productDetails) => axios.put(`${url}/${id}`, productDetails);
+const markAsSold = id => axios.patch(`${url}/${id}`);
 const deleteProduct = id => axios.delete(`${url}/${id}`);
 
 module.exports = {
@@ -22,4 +23,5 @@ module.exports = {
   editProduct,
   getSingleProduct,
   deleteProduct,
+  markAsSold,
 };

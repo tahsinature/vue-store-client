@@ -2,7 +2,26 @@
   <div class="profile-control">
     <notifications group="auth" position="bottom right" animation-type="velocity"></notifications>
     <div class="brand">
-      <h1>Brand</h1>
+      <div class="big-image">
+        <img v-if="mode === 'login'" src="../assets/images/login-cartoon.png" alt>
+        <img v-if="mode === 'register'" src="../assets/images/reg-cartoon.png" alt>
+      </div>
+      <h1>{{mode === 'login' ? 'Log in to Vue Store' : 'Sign up on Vue Store'}}</h1>
+      <p>Lorem ipsum dolor, sit amet consectetur adipisicing.</p>
+      <div class="points">
+        <div class="point">
+          <img src="https://w.bikroy-st.com/dist/img/all/account/1-1x-a2fc1800.png" alt>
+          <p>Start posting your own ads.</p>
+        </div>
+        <div class="point">
+          <img src="https://w.bikroy-st.com/dist/img/all/account/2-1x-3efcbe32.png" alt>
+          <p>Mark ads as favorite and view them later.</p>
+        </div>
+        <div class="point">
+          <img src="https://w.bikroy-st.com/dist/img/all/account/3-1x-b04d6b82.png" alt>
+          <p>View and manage your ads at your convenience.</p>
+        </div>
+      </div>
     </div>
     <div class="form">
       <h1 class="form-title">{{mode}} User</h1>
@@ -37,7 +56,7 @@
           <router-link to="/register">Register</router-link>
         </div>
       </form>
-      <form @submit.prevent="handleSubmit" v-if="mode === 'register' || mode === 'edit'">
+      <form @submit.prevent v-if="mode === 'register' || mode === 'edit'">
         <div class="form-group">
           <input
             class="form-control"
@@ -61,6 +80,7 @@
             :class="[{'is-invalid': errors.has('userName') || userNameStatus === 'taken'}, {'is-valid': !errors.has('userName') && userNameStatus === 'ok'}]"
             @blur="checkUserName()"
             @focus="userNameStatus = null"
+            :disabled="mode === 'edit'"
           >
           <small class="invalid-feedback">{{errors.first('userName')}}</small>
           <small v-if="userNameStatus === 'taken'" class="invalid-feedback">Username already taken</small>
@@ -78,6 +98,7 @@
             :class="[{'is-invalid': errors.has('email') || emailStatus === 'taken'}, {'is-valid': !errors.has('email') && emailStatus === 'ok'}]"
             @blur="checkEmail()"
             @focus="emailStatus = null"
+            :disabled="mode === 'edit'"
           >
           <small class="invalid-feedback">{{errors.first('email')}}</small>
           <small v-if="emailStatus === 'taken'" class="invalid-feedback">Email is already registered</small>
@@ -87,7 +108,7 @@
           >This email is not registered yet ✔</small>
           <small v-if="emailStatus === 'checking'">Checking Availablity...</small>
         </div>
-        <div class="form-group">
+        <div class="form-group" v-if="mode !== 'edit'">
           <input
             class="form-control"
             type="password"
@@ -100,7 +121,7 @@
           >
           <small class="invalid-feedback">{{errors.first('password')}}</small>
         </div>
-        <div class="form-group">
+        <div class="form-group" v-if="mode !== 'edit'">
           <input
             class="form-control"
             type="password"
@@ -141,6 +162,20 @@
           </select>
           <small class="invalid-feedback">{{errors.first('location')}}</small>
         </div>
+        <!-- ------ -->
+        <div class="form-group">
+          <textarea
+            class="form-control"
+            data-gramm_editor="false"
+            placeholder="Address"
+            name="address"
+            v-validate="'required'"
+            v-model="userInfo.address"
+            :class="{'is-invalid': errors.has('address')}"
+          ></textarea>
+          <small class="invalid-feedback">{{errors.first('address')}}</small>
+        </div>
+        <!-- ------ -->
         <div class="bio">
           <div class="form-group">
             <textarea
@@ -156,7 +191,7 @@
           </div>
           <div class="img-control">
             <div class="img-box" v-if="userInfo.profilePhoto" @click="userInfo.profilePhoto = null">
-              <img :src="userInfo.profilePhoto.url">
+              <img v-lazy="userInfo.profilePhoto.url">
               <p>Remove</p>
             </div>
             <div v-else>
@@ -209,14 +244,31 @@
             <label for="female" class="form-check-label">Female</label>
           </div>
         </div>
-        <button class="btn btn-success btn-block" :disabled="isProcessing">
-          {{(mode === 'register') ? 'Register Me' : 'Edit & Save'}}
+        <button
+          class="btn btn-success btn-block"
+          :disabled="isProcessing"
+          v-if="mode === 'register'"
+          @click="handleSubmit"
+        >
+          Register Me
           <span
             class="spinner-border spinner-border-sm"
             role="status"
             aria-hidden="true"
             v-show="isProcessing"
           ></span>
+        </button>
+        <button
+          class="btn btn-success btn-block"
+          :disabled="isProcessing"
+          v-if="mode === 'edit'"
+          @click="handleEdit"
+        >Edit & Save
+          <!-- <span
+            class="spinner-border spinner-border-sm"
+            role="status"
+            aria-hidden="true"
+          ></span>-->
         </button>
         <div v-if="mode === 'register'" class="text-right mt-2">Already registerd?
           <router-link to="/login">Login</router-link>
@@ -248,6 +300,7 @@ export default {
         profilePhoto: null,
         gender: 'Male',
         location: null,
+        address: '',
         bio: '',
       },
       loginInfo: {
@@ -255,14 +308,14 @@ export default {
         password: '',
         rememberPassword: false,
       },
-      editInfo: {
-        fullName: '',
-        password: '',
-        contactNo: '',
-        profilePhoto: '',
-        location: '',
-        bio: '',
-      },
+      // editInfo: {
+      //   fullName: '',
+      //   contactNo: '',
+      //   profilePhoto: '',
+      //   location: '',
+      //   address: '',
+      //   bio: '',
+      // },
       locations: [
         { name: 'Select Location', value: null },
         { name: 'Asia', value: 'asia' },
@@ -324,7 +377,6 @@ export default {
       this.userInfo.profilePhoto = null;
       this.imgWarning = true;
     },
-    // eslint-disable-next-line no-unused-vars
     uploadMedia(formData, index, files) {
       if (this.selectedImages) return;
       this.imgWarning = false;
@@ -345,7 +397,6 @@ export default {
           this.uploadProgress = 0;
           this.isUploading = false;
           // console.log(res.data[0]);
-          // eslint-disable-next-line prefer-destructuring
           this.userInfo.profilePhoto = res.data[0];
         })
         .catch(() => {
@@ -354,42 +405,73 @@ export default {
         });
     },
     handleSubmit() {
-      this.$validator
-        .validateAll()
-        // eslint-disable-next-line consistent-return
-        .then((valid) => {
-          if (!valid) {
-            this.imgWarning = true;
-            return this.$emit('onNotify', {
-              title: 'Oops, Bad Inputs',
-              text: 'Please check and double check your inputs.',
-              type: 'error',
+      this.$validator.validateAll().then((valid) => {
+        if (!valid || this.imgWarning || !this.userInfo.profilePhoto) {
+          this.imgWarning = true;
+          return this.$emit('onNotify', {
+            title: 'Oops, Bad Inputs',
+            text: 'Please check and double check the requirements.',
+            type: 'error',
+          });
+        }
+        this.isProcessing = true;
+        authController
+          .registerUser(this.userInfo)
+          .then(() => {
+            this.$emit('onNotify', {
+              title: 'Registration Successful',
+              text: 'Please Login with your credentials. .😃',
+              type: 'success',
+            });
+            // this.userInfo = null;
+            this.$router.push('/login');
+          })
+          .catch((err) => {
+            console.log(err);
+
+            this.isProcessing = false;
+            // setTimeout(() => {
+            //   this.flash(err.response.data.message.errorMessage, 'error', {
+            //     timeout: 2000,
+            //     important: true,
+            //   });
+            // }, 1000);
+          });
+      });
+    },
+    handleEdit() {
+      authController
+        .editUser({
+          fullName: this.userInfo.fullName,
+          contactNo: this.userInfo.contactNo,
+          profilePhoto: this.userInfo.profilePhoto,
+          location: this.userInfo.location,
+          address: this.userInfo.address,
+          bio: this.userInfo.bio,
+          gender: this.userInfo.gender,
+        })
+        .then(({ data, status }) => {
+          if (status === 200) {
+            this.$store.dispatch('setAdmin', data);
+            this.$store.dispatch('setSelectedUser', data);
+            authController.getUser(data._id).then(({ data }) => {
+              this.$store.dispatch('setSelectedUser', data);
+              this.$router.push('/me');
+            });
+            this.$emit('onNotify', {
+              title: 'Profile Successfully Saved',
+              text: `${data.fullName}, you successfully edited your profile`,
+              type: 'success',
             });
           }
-          this.isProcessing = true;
-          console.log(this.userInfo);
-          authController
-            .registerUser(this.userInfo)
-            .then(() => {
-              this.$emit('onNotify', {
-                title: 'Registration Successful',
-                text: 'Please Login with your credentials. .😃',
-                type: 'success',
-              });
-              // this.userInfo = null;
-              this.$router.push('/login');
-            })
-            .catch((err) => {
-              console.log(err);
-
-              this.isProcessing = false;
-              // setTimeout(() => {
-              //   this.flash(err.response.data.message.errorMessage, 'error', {
-              //     timeout: 2000,
-              //     important: true,
-              //   });
-              // }, 1000);
-            });
+        })
+        .catch(({ response }) => {
+          console.log(response);
+          this.$emit('onNotify', {
+            title: 'Edit Failed',
+            text: 'Sorry,  something went wrong. Please check your inputs.',
+            type: 'error',
+          });
         });
     },
     handleLogin() {
@@ -399,7 +481,8 @@ export default {
           localStorage.setItem('token', response.data['x-auth-token']);
           this.$store.dispatch('setAdmin', response.data.user);
           eventBus.isLoggedIn = true;
-          this.$router.push('/me');
+          // this.$router.push('/me');
+          window.location.reload();
           this.$emit('onNotify', {
             title: 'Login Successfull',
             text: `Welcome ${response.data.user.fullName} to your profile.`,
@@ -416,7 +499,6 @@ export default {
     },
   },
   beforeMount() {
-    // eslint-disable-next-line prefer-destructuring
     this.mode = this.$route.fullPath.split('/').pop();
     if (this.mode === 'edit') {
       this.userInfo = this.$store.getters.getAdmin;
@@ -435,18 +517,59 @@ export default {
       next();
     }
   },
+  deactivated() {
+    this.$destroy();
+  },
 };
 </script>
 
 <style lang="scss" scoped>
 @import "../assets/sass/main.scss";
 
+.brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  .big-image {
+    width: 30%;
+    margin-bottom: 2rem;
+    img {
+      width: 100%;
+    }
+  }
+  padding: 1rem;
+  h1 {
+    font-size: 1.5rem;
+    text-transform: uppercase;
+  }
+  p {
+    font-size: 0.9rem;
+  }
+  .points {
+    margin-top: 1rem;
+  }
+  .point {
+    display: flex;
+    align-items: center;
+    img {
+      width: 40px;
+      margin-right: 0.5rem;
+    }
+  }
+}
+
+.form-control:disabled {
+  background: #b7b6b682;
+  color: #ffffff70;
+  border-color: #b7b6b6ad;
+  cursor: not-allowed;
+}
 .profile-control {
   // background: url("https://d2gg9evh47fn9z.cloudfront.net/800px_COLOURBOX15766677.jpg");
   background: rgb(37, 51, 61);
   color: #fff;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 0.7fr 1.3fr;
   @include respond(df, tab-l) {
     grid-template-columns: 1fr;
   }
@@ -480,9 +603,18 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
+    & /deep/ .image-container {
+      @include respond(df, mbl) {
+        max-width: 150px;
+      }
+    }
     .img-box {
-      width: 180px;
-      height: 180px;
+      @include respond(df, mbl) {
+        width: 100px;
+        height: 100px;
+      }
+      width: 130px;
+      height: 130px;
       border-radius: 50%;
       overflow: hidden;
       border: 3px solid #ddd;
@@ -501,6 +633,9 @@ export default {
         height: 30%;
         text-align: center;
         font-family: "Courier New", Courier, monospace;
+        @include respond(df, mbl) {
+          font-size: 0.7rem;
+        }
         display: flex;
         align-items: center;
         justify-content: center;

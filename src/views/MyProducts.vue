@@ -6,7 +6,7 @@
         <i class="fas fa-globe-europe"></i>http://carousell.com/t4h51n
       </p>
     </div>
-    <div class="post-ad">
+    <div class="post-an-ad">
       <router-link to="/products/new" tag="button" class="btn btn-block mt-3">Post A New Ad</router-link>
     </div>
     <div class="stats mt-3">
@@ -91,7 +91,7 @@ export default {
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   justify-items: center;
 }
-.post-ad button {
+.post-an-ad button {
   background: #3f51b5d4;
   color: #fff;
   &:hover {

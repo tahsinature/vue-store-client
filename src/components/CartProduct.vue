@@ -2,8 +2,9 @@
   <div class="cart-product">
     <div class="cart-product__left">
       <h4 class="cart-product__title">{{item.title}}</h4>
-      <small class="cart-product__id text-muted">Prod id: {{item._id}}</small>
-      <p class="text-danger" @click="removeFromCart()">Remove</p>
+      <!-- <small class="cart-product__id text-muted">Prod id: {{item._id}}</small> -->
+      <!-- <p class="text-danger" @click="removeFromCart()">Remove</p> -->
+      <button class="btn btn-sm btn-danger" @click="removeFromCart()">Remove Item</button>
     </div>
     <div class="cart-product__right">
       <div class="cart-product__quantity">
@@ -11,7 +12,9 @@
       </div>
       <div class="cart-product__price text-right">
         <div class="unit-price">
-          <small class="text-muted">Unit Price: ${{Number(item.price).toFixed(2)}}</small>
+          <p>Unit Price:</p>
+          <p>${{Number(item.price).toFixed(2)}}</p>
+          <!-- <small class="text-muted">Unit Price: ${{Number(item.price).toFixed(2)}}</small> -->
         </div>
         <div class="total-price">
           <h6>${{item.totalPrice().toFixed(2)}}</h6>
@@ -38,6 +41,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "../assets/sass/main";
 .cart-product {
   padding: 0.4rem;
   &:not(:last-of-type) {
@@ -58,6 +62,12 @@ export default {
     // max-width: 30%;
     .cart-product__title {
       font-size: 1.2rem;
+      @include respond(df, mbl) {
+        font-size: 1rem;
+      }
+    }
+    .btn-danger {
+      font-size: 0.7rem;
     }
   }
   &__right {
@@ -78,6 +88,11 @@ export default {
           outline: none;
         }
       }
+    }
+    .unit-price {
+      color: #949494;
+      font-size: 0.7rem;
+      margin-bottom: 0.4rem;
     }
     .cart-product__price {
       margin-left: 1rem;

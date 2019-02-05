@@ -7,7 +7,7 @@
           src="https://www.freepnglogos.com/uploads/new-balance-png-logo/media-assets-and-official-new-relic-and-new-balance-png-logo-31.png"
           alt
         >
-        <h5>Vue.js Store</h5>
+        <h5>Vue Store</h5>
       </div>
       <div class="right" @click="showCart()">
         <p class="my-cart">
@@ -34,7 +34,15 @@ export default {
       eventBus.$emit('onToggleNav');
     },
     showCart() {
-      eventBus.$emit('onShowCart');
+      if (eventBus.isLoggedIn) {
+        eventBus.$emit('onShowCart');
+      } else {
+        eventBus.$emit('onNotify', {
+          title: 'Authentication Needed',
+          text: "You 've to be logged in to use cart.",
+          type: 'error',
+        });
+      }
     },
   },
   computed: {

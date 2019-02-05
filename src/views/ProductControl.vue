@@ -1,6 +1,8 @@
 <template>
-  <div class="container">
-    <h1>{{mode}} Ad</h1>
+  <div class="container mt-4 mb-5">
+    <div class="header">
+      <h1>{{mode === 'new' ? 'Post a New Ad' : 'Edit your Ad'}}</h1>
+    </div>
     <hr>
     <flash-message></flash-message>
     <div class="form-group">
@@ -197,7 +199,6 @@
 </template>
 
 <script>
-/* eslint-disable no-unused-vars */
 import imageUploader from 'vue-upload-multiple-image';
 import axios from 'axios';
 import Vue from 'vue';
@@ -358,6 +359,13 @@ export default {
         ? (this.imgWarning = true)
         : (this.imgWarning = false);
     },
+    // eslint-disable-next-line func-names
+    'newProduct.images': function () {
+      if (this.newProduct.images.length > 0) this.imgWarning = false;
+    },
+    isUploading() {
+      if (this.isUploading) this.imgWarning = false;
+    },
   },
   created() {
     this.windowSize = document.documentElement.clientWidth;
@@ -386,6 +394,21 @@ export default {
 
 <style lang="scss" scoped>
 @import "../assets/sass/main.scss";
+.header {
+  background: #ffffff66;
+  border: 5px solid #fff;
+  margin: 1rem 0;
+  padding: 1rem;
+  color: #505050db;
+  text-align: center;
+  border-radius: 5px;
+  font-family: "ZCOOL QingKe HuangYou", cursive;
+
+  h1 {
+    font-size: 34px;
+    margin: 0;
+  }
+}
 .image-preview-box {
   text-align: center;
   padding: 1rem;
@@ -407,6 +430,10 @@ export default {
   align-items: center;
   @include respond(df, mbl) {
     grid-template-columns: 1fr;
+  }
+  @include respond(mf, tab-l) {
+    justify-self: end;
+    margin-right: 1rem;
   }
   grid-gap: 2rem;
   .upload-wrapper {
@@ -432,6 +459,16 @@ export default {
     width: 100%;
     @include respond(mf, tab-l) {
       width: 70%;
+      justify-self: start;
+    }
+    @include respond(df, tab-p) {
+      h2 {
+        font-size: 1.2rem;
+      }
+      p {
+        font-size: 0.8rem;
+        text-align: center;
+      }
     }
     div {
       display: flex;
