@@ -81,6 +81,7 @@
 import socket from 'socket.io-client';
 import { mapGetters } from 'vuex';
 import eventBus from '../main';
+import store from '../store/store';
 
 // const socketOn = socket('http://localhost:3000');
 const socketOn = socket('http://vue-store-tahsin.herokuapp.com/');
@@ -149,7 +150,7 @@ export default {
     });
   },
   beforeRouteEnter(to, from, next) {
-    if (!eventBus.isLoggedIn) {
+    if (!store.getters.isLoggedIn) {
       next('/login');
       return eventBus.$emit('onNotify', {
         title: 'Please login first',

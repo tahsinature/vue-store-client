@@ -11,16 +11,26 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     token: localStorage.getItem('token'),
+    isLoggedIn: false,
   },
   getters: {
     token(state) {
       return state.token;
     },
-    // isAuthenticated(state) {
-    // }
+    isLoggedIn(state) {
+      return state.isLoggedIn;
+    },
   },
-  mutations: {},
-  actions: {},
+  mutations: {
+    makeIsLoggedInTrue(state) {
+      state.isLoggedIn = true;
+    },
+  },
+  actions: {
+    makeIsLoggedInTrue({ commit }) {
+      commit('makeIsLoggedInTrue');
+    },
+  },
   modules: {
     products,
     cart,

@@ -93,7 +93,7 @@ export default {
     });
     socketOn.addEventListener('onNewMessage', (receiverId) => {
       if (
-        eventBus.isLoggedIn
+        this.$store.getters.isLoggedIn
         && receiverId === this.$store.getters.getAdmin._id
       ) {
         this.msgNotification += 1;

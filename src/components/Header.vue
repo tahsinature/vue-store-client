@@ -34,7 +34,7 @@ export default {
       eventBus.$emit('onToggleNav');
     },
     showCart() {
-      if (eventBus.isLoggedIn) {
+      if (this.$store.getters.isLoggedIn) {
         eventBus.$emit('onShowCart');
       } else {
         eventBus.$emit('onNotify', {

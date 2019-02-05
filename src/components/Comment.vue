@@ -38,7 +38,7 @@ export default {
       return false;
     },
     isAlreadyLiked() {
-      if (eventBus.default.isLoggedIn) {
+      if (this.$store.getters.isLoggedIn) {
         return this.review.likers.includes(this.$store.getters.getAdmin._id);
       }
       return false;

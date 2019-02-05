@@ -64,6 +64,7 @@
 <script>
 import { mapGetters } from 'vuex';
 import eventBus from '../main';
+import store from '../store/store';
 
 export default {
   data() {
@@ -94,7 +95,7 @@ export default {
     },
   },
   beforeRouteEnter(to, from, next) {
-    if (!eventBus.isLoggedIn) {
+    if (!store.getters.isLoggedIn) {
       next('/login');
       return eventBus.$emit('onNotify', {
         title: 'Please login first',

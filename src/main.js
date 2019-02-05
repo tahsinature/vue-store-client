@@ -37,17 +37,25 @@ export default new Vue({
   },
 });
 
-
 Vue.component('app-loading', Loading);
-// const token = localStorage.getItem('token');
-// authController.authenticateUser(token).then(({ data, status }) => {
-//   if (status === 200) {
-//     store.dispatch('setAdmin', data);
-//     eventBus.isLoggedIn = true;
-//   }
-// });
-new Vue({
-  router,
-  store,
-  render: h => h(App),
-}).$mount('#app');
+
+function renderVue() {
+  new Vue({
+    router,
+    store,
+    render: h => h(App),
+  }).$mount('#app');
+}
+
+const token = localStorage.getItem('token');
+authController.authenticateUser(token).then(({ data, status }) => {
+  if (status === 200) {
+    store.dispatch('makeIsLoggedInTrue');
+    store.dispatch('setAdmin', data);
+    renderVue();
+  } else {
+    renderVue();
+  }
+}).catch(() => {
+  renderVue();
+});

@@ -38,6 +38,7 @@
 import eventBus from '../main';
 import MyProductsCardVue from '../components/MyProductsCard.vue';
 import { authController } from '../api';
+import store from '../store/store';
 
 export default {
   data() {
@@ -75,7 +76,7 @@ export default {
     });
   },
   beforeRouteEnter(to, from, next) {
-    if (eventBus.isLoggedIn) {
+    if (store.getters.isLoggedIn) {
       next();
     } else {
       next('/login');

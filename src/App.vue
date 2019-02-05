@@ -76,7 +76,7 @@ export default {
     });
     if (
       this.$store.getters.allNotifications.length < 1
-      && eventBus.isLoggedIn
+      && this.$store.getters.isLoggedIn
     ) {
       this.$store.dispatch('getNotificationsFromServer');
       this.$store.dispatch('loadCart');
@@ -88,7 +88,7 @@ export default {
     socketOn.addEventListener(
       'newNotification',
       (notification, adminId, createdPackage) => {
-        if (eventBus.isLoggedIn) {
+        if (this.$store.getters.isLoggedIn) {
           if (adminId === this.$store.getters.getAdmin._id) {
             // eventBus.$emit(
             //   'onServerNotification',

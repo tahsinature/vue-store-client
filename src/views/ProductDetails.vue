@@ -214,7 +214,7 @@ export default {
           type: 'error',
         });
       }
-      if (!eventBus.isLoggedIn) {
+      if (!this.$store.getters.isLoggedIn) {
         return eventBus.$emit('onNotify', {
           title: 'Authentication Needed',
           text: "You've to be logged in to like a product.",
@@ -273,7 +273,7 @@ export default {
       });
     },
     likeReview(id) {
-      if (!eventBus.isLoggedIn) {
+      if (!this.$store.getters.isLoggedIn) {
         return eventBus.$emit('onNotify', {
           title: 'Authentication Needed',
           text: "You've to be logged in to like a review.",
@@ -333,7 +333,7 @@ export default {
         });
     },
     addToCart() {
-      if (!eventBus.isLoggedIn) {
+      if (!this.$store.getters.isLoggedIn) {
         return eventBus.$emit('onNotify', {
           title: 'Authentication Needed',
           text: "You 've to be logged in to use cart.",

@@ -201,7 +201,7 @@ export default {
     },
   },
   beforeRouteEnter(to, from, next) {
-    if (eventBus.isLoggedIn) {
+    if (store.getters.isLoggedIn) {
       to.fullPath.split('/').pop() === 'me'
         ? (eventBus.profile.role = 'admin')
         : (eventBus.profile.role = 'user');
@@ -278,7 +278,6 @@ export default {
     logout() {
       localStorage.removeItem('token');
       this.$store.dispatch('removeAdmin');
-      eventBus.isLoggedIn = false;
       this.$destroy();
       window.location.reload();
     },

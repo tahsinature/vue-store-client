@@ -283,6 +283,7 @@ import imageUploader from 'vue-upload-multiple-image';
 import axios from 'axios';
 import eventBus from '../main';
 import { authController, mediaController } from '../api';
+import store from '../store/store';
 
 export default {
   components: {
@@ -479,8 +480,8 @@ export default {
         .loginUser(this.loginInfo)
         .then((response) => {
           localStorage.setItem('token', response.data['x-auth-token']);
-          this.$store.dispatch('setAdmin', response.data.user);
-          eventBus.isLoggedIn = true;
+          // this.$store.dispatch('setAdmin', response.data.user);
+          // this.$store.dispatch('makeIsLoggedInTrue');
           // this.$router.push('/me');
           window.location.reload();
           this.$emit('onNotify', {
@@ -506,12 +507,12 @@ export default {
   },
   beforeRouteEnter(to, from, next) {
     if (to.fullPath.split('/').pop() === 'edit') {
-      if (eventBus.isLoggedIn) {
+      if (store.getters.isLoggedIn) {
         next();
       } else {
         next('login');
       }
-    } else if (eventBus.isLoggedIn) {
+    } else if (store.getters.isLoggedIn) {
       next('/me');
     } else {
       next();
