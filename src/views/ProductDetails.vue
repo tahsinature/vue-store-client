@@ -175,7 +175,7 @@ import DeleteConfirmationVue from '../components/modals/DeleteConfirmation.vue';
 import eventBus from '../main';
 
 // const socketOn = socket('http://localhost:3000');
-const socketOn = socket('http://vue-store-tahsin.herokuapp.com/');
+const socketOn = socket('https://vue-store-tahsin.herokuapp.com/');
 
 export default {
   components: {
@@ -259,7 +259,8 @@ export default {
         })
         .catch(({ response }) => {
           failNotify();
-          console.log(response);
+          // console.log(response);
+          window.location.reload();
         });
     },
     removeReview(id) {

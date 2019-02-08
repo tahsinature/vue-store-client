@@ -84,7 +84,7 @@ import eventBus from '../main';
 import store from '../store/store';
 
 // const socketOn = socket('http://localhost:3000');
-const socketOn = socket('http://vue-store-tahsin.herokuapp.com/');
+const socketOn = socket('https://vue-store-tahsin.herokuapp.com/');
 
 export default {
   data() {

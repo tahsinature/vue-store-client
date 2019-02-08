@@ -9,12 +9,15 @@
     </div>
     <div class="product-preview__right">
       <div class="product-preview__right__details">
-        <p class="title" @click="gotoDetails">{{product.title}}</p>
+        <p
+          class="title"
+          @click="gotoDetails"
+        >{{product.title.length > 12 ? product.title.substr(0, 12) + '...' : product.title}}</p>
         <p
           class="location text-muted"
           style="white-space: nowrap;"
         >{{product.location}} - {{product.category}} - {{product.condition}}</p>
-        <p class="price">{{product.price}}</p>
+        <p class="price">${{product.price}}</p>
       </div>
       <div class="product-preview__right__time">
         <small class="text-muted">{{product.createdAt | moment("from", "now")}}</small>

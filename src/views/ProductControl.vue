@@ -181,7 +181,7 @@
     <button
       class="btn btn-primary btn-block"
       type="button"
-      :disabled="checkMode"
+      :disabled="checkMode || !isAllPropertyPresent"
       :class="{'btn-success': allDone}"
       @click="reviewPost()"
     >
@@ -199,11 +199,13 @@
 </template>
 
 <script>
-import imageUploader from 'vue-upload-multiple-image';
 import axios from 'axios';
+import firebase from 'firebase';
 import Vue from 'vue';
-import { productController, mediaController } from '../api';
+import imageUploader from 'vue-upload-multiple-image';
+import ImageCompressor from 'image-compressor.js';
 import SingleImagePreviewVue from '../components/SingleImagePreview.vue';
+import { productController, mediaController } from '../api';
 
 export default {
   components: {
@@ -256,6 +258,7 @@ export default {
       uploadProgress: 0,
       mode: undefined,
       imgWarning: false,
+      isAllPropertyPresent: false,
     };
   },
   methods: {
@@ -276,6 +279,44 @@ export default {
       this.selectedImages.splice(index, 1);
       done();
     },
+    uploadSingletoFirebase(file) {
+      const vm = this;
+      // eslint-disable-next-line no-new
+      new ImageCompressor(file, {
+        quality: 0.3,
+        success(compressedFile) {
+          // eslint-disable-next-line no-use-before-define
+          uploadToFirebase(compressedFile);
+        },
+        error(e) {
+          console.log(e);
+        },
+      });
+      function uploadToFirebase(compressedFile) {
+        const uploadTask = firebase
+          .storage()
+          .ref(
+            `products-${
+              vm.newProduct.title ? vm.newProduct.title : 'UnkownProduct'
+            }-${Date.now(compressedFile.name)}`,
+          )
+          .put(compressedFile);
+        uploadTask.then((response) => {
+          response.ref.getDownloadURL().then((url) => {
+            vm.isUploading = false;
+            vm.uploadProgress = 0;
+            const newImg = {};
+            newImg.url = url;
+            vm.newProduct.images.push(newImg);
+          });
+        });
+        uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED, (snapshot) => {
+          vm.isUploading = true;
+          // eslint-disable-next-line no-multi-spaces
+          vm.uploadProgress =            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        });
+      }
+    },
     uploadMedia() {
       if (
         this.selectedImages.length < 1
@@ -284,36 +325,11 @@ export default {
       ) {
         return;
       }
-      const fd = new FormData();
-      this.selectedImages.forEach((file) => {
-        fd.append('images', file);
+      this.selectedImages.forEach((x) => {
+        this.uploadSingletoFirebase(x);
       });
       this.selectedImages = [];
       this.$refs.imageUploader.images = [];
-      // mediaController
-      //   .uploadMedia(fd)
-      this.isUploading = true;
-      axios
-        .post('/media', fd, {
-          onUploadProgress: (event) => {
-            this.uploadProgress = Math.floor(
-              (event.loaded / event.total) * 100,
-            );
-          },
-        })
-        .then((res) => {
-          this.uploadProgress = 0;
-          this.isUploading = false;
-          res.data.forEach((imgObj) => {
-            if (this.newProduct.images.length < 5) {
-              this.newProduct.images.push(imgObj);
-            }
-          });
-        })
-        .catch((err) => {
-          this.uploadProgress = 0;
-          this.isUploading = false;
-        });
     },
     removeUploadedImage(index) {
       this.newProduct.images.splice(index, 1);
@@ -332,8 +348,15 @@ export default {
                 this.$store.dispatch('addNewProduct', resp.data);
                 this.$emit('onNewPost');
                 this.$router.push(`/products/${resp.data._id}`);
+                this.$destroy();
               })
-              .catch(err => console.log(err.response));
+              .catch((err) => {
+                window.location.reload('/');
+                // this.$router.push('/');
+                // console.log(err.response);
+                // this.checkMode = false;
+                // this.allDone = false;
+              });
           } else {
             productController
               .editProduct(this.$route.params.id, this.newProduct)
@@ -358,6 +381,22 @@ export default {
       && this.isImageBoxTouched
         ? (this.imgWarning = true)
         : (this.imgWarning = false);
+    },
+    newProduct: {
+      deep: true,
+      handler() {
+        if (
+          this.newProduct.images.length > 0
+          && this.newProduct.title
+          && this.newProduct.price
+          && this.newProduct.location
+          && this.newProduct.category
+          && this.newProduct.condition
+          && this.newProduct.description
+        ) {
+          this.isAllPropertyPresent = true;
+        } else this.isAllPropertyPresent = false;
+      },
     },
     // eslint-disable-next-line func-names
     'newProduct.images': function () {
@@ -386,6 +425,7 @@ export default {
         this.newProduct.description = product.description;
         this.newProduct.images = product.images;
         this.newProduct.category = product.category;
+        this.newProduct.condition = product.condition;
       }
     }
   },

@@ -2,11 +2,7 @@
   <div class="nav">
     <div class="container">
       <div class="left" @click="toggleNav()">
-        <img
-          class="logo"
-          src="https://www.freepnglogos.com/uploads/new-balance-png-logo/media-assets-and-official-new-relic-and-new-balance-png-logo-31.png"
-          alt
-        >
+        <img class="logo" src="../assets/images/logo.png" alt>
         <h5>Vue Store</h5>
       </div>
       <div class="right" @click="showCart()">

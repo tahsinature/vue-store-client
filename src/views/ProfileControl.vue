@@ -190,8 +190,12 @@
             <small class="invalid-feedback">{{errors.first('bio')}}</small>
           </div>
           <div class="img-control">
-            <div class="img-box" v-if="userInfo.profilePhoto" @click="userInfo.profilePhoto = null">
-              <img v-lazy="userInfo.profilePhoto.url">
+            <div
+              class="img-box"
+              v-if="finalImage || userInfo.profilePhoto"
+              @click="userInfo.profilePhoto = null; finalImage = null"
+            >
+              <img v-lazy="finalImage || userInfo.profilePhoto">
               <p>Remove</p>
             </div>
             <div v-else>
@@ -281,6 +285,8 @@
 <script>
 import imageUploader from 'vue-upload-multiple-image';
 import axios from 'axios';
+import ImageCompressor from 'image-compressor.js';
+import firebase from 'firebase';
 import eventBus from '../main';
 import { authController, mediaController } from '../api';
 import store from '../store/store';
@@ -309,14 +315,6 @@ export default {
         password: '',
         rememberPassword: false,
       },
-      // editInfo: {
-      //   fullName: '',
-      //   contactNo: '',
-      //   profilePhoto: '',
-      //   location: '',
-      //   address: '',
-      //   bio: '',
-      // },
       locations: [
         { name: 'Select Location', value: null },
         { name: 'Asia', value: 'asia' },
@@ -335,6 +333,7 @@ export default {
       selectedImages: undefined,
       uploadProgress: 0,
       isUploading: false,
+      finalImage: null,
     };
   },
   watch: {
@@ -379,31 +378,52 @@ export default {
       this.imgWarning = true;
     },
     uploadMedia(formData, index, files) {
+      const vm = this;
+      function generateUserPreview(file) {
+        const fileReader = new FileReader();
+        fileReader.addEventListener('load', () => {
+          vm.finalImage = fileReader.result;
+        });
+        fileReader.readAsDataURL(file);
+      }
       if (this.selectedImages) return;
       this.imgWarning = false;
       const file = formData.getAll('file')[0];
-      const fd = new FormData();
-      fd.append('images', file);
-      mediaController.uploadMedia(fd);
-      this.isUploading = true;
-      axios
-        .post('/media', fd, {
-          onUploadProgress: (event) => {
-            this.uploadProgress = Math.floor(
-              (event.loaded / event.total) * 100,
-            );
-          },
-        })
-        .then((res) => {
-          this.uploadProgress = 0;
-          this.isUploading = false;
-          // console.log(res.data[0]);
-          this.userInfo.profilePhoto = res.data[0];
-        })
-        .catch(() => {
-          this.uploadProgress = 0;
-          this.isUploading = false;
+      // eslint-disable-next-line no-new
+      new ImageCompressor(file, {
+        quality: 0.1,
+        success(compressedFile) {
+          // eslint-disable-next-line no-use-before-define
+          uploadToFirebase(compressedFile);
+        },
+        error(e) {
+          console.log(e);
+        },
+      });
+      function uploadToFirebase(compressedFile) {
+        const uploadTask = firebase
+          .storage()
+          .ref(
+            `user-${
+              vm.userInfo.userName ? vm.userInfo.userName : 'UnkownUser'
+            }-${Date.now(compressedFile.name)}`,
+          )
+          .put(compressedFile);
+        uploadTask.then((response) => {
+          response.ref.getDownloadURL().then((url) => {
+            generateUserPreview(compressedFile);
+            vm.userInfo.profilePhoto = {};
+            vm.userInfo.profilePhoto.url = url;
+            vm.isUploading = false;
+            vm.uploadProgress = 0;
+          });
         });
+        uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED, (snapshot) => {
+          vm.isUploading = true;
+          // eslint-disable-next-line no-multi-spaces
+          vm.uploadProgress =            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        });
+      }
     },
     handleSubmit() {
       this.$validator.validateAll().then((valid) => {
@@ -424,19 +444,10 @@ export default {
               text: 'Please Login with your credentials. .😃',
               type: 'success',
             });
-            // this.userInfo = null;
             this.$router.push('/login');
           })
           .catch((err) => {
-            console.log(err);
-
             this.isProcessing = false;
-            // setTimeout(() => {
-            //   this.flash(err.response.data.message.errorMessage, 'error', {
-            //     timeout: 2000,
-            //     important: true,
-            //   });
-            // }, 1000);
           });
       });
     },

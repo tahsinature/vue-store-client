@@ -1,9 +1,10 @@
 <template>
   <div class="container">
     <div class="profile-hint">
-      <p>@t4h51n is on Carousell - Follow to stay updated!</p>
+      <p>{{$store.getters.getAdmin.userName}} is on Vue Store - Follow to stay updated!</p>
       <p>
-        <i class="fas fa-globe-europe"></i>http://carousell.com/t4h51n
+        <i class="fas fa-globe-europe"></i>
+        vue-store-tahsin.firebaseapp.com/profile/{{$store.getters.getAdmin.userName}}
       </p>
     </div>
     <div class="post-an-ad">

@@ -178,7 +178,7 @@ import ContactListVue from '../components/modals/ContactList.vue';
 import WriteMessageVue from '../components/modals/WriteMessage.vue';
 
 // const socketOn = socket('http://localhost:3000');
-const socketOn = socket('http://vue-store-tahsin.herokuapp.com/');
+const socketOn = socket('https://vue-store-tahsin.herokuapp.com/');
 
 export default {
   data() {
@@ -237,6 +237,11 @@ export default {
         } else getUserFromServer();
       } else getUserFromServer();
     } else {
+      eventBus.$emit('onNotify', {
+        title: 'You have to be logged in',
+        text: "You've to be logged in to view profile.",
+        type: 'error',
+      });
       next('/login');
     }
   },

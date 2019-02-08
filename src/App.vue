@@ -25,7 +25,7 @@ import SideNavVue from './components/SideNav.vue';
 import { productController, authController } from './api';
 
 // const socketOn = socket('http://localhost:3000');
-const socketOn = socket('http://vue-store-tahsin.herokuapp.com/');
+const socketOn = socket('https://vue-store-tahsin.herokuapp.com/');
 
 export default {
   methods: {

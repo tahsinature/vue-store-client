@@ -8,7 +8,7 @@ import store from './store/store';
 
 const token = localStorage.getItem('token');
 
-axios.defaults.baseURL = 'http://vue-store-tahsin.herokuapp.com/';
+axios.defaults.baseURL = 'https://vue-store-tahsin.herokuapp.com/';
 axios.defaults.headers.common['x-auth-token'] = token;
 
 // axios.defaults.baseURL = 'http://localhost:3000';
@@ -47,7 +47,7 @@ const router = new Router({
         productController
           .getSingleProduct(productId)
           .then((result) => {
-            if (result.data.author == admin._id) {
+            if (result.data.author._id == admin._id) {
               return next();
             }
             // eslint-disable-next-line no-alert

@@ -26,10 +26,16 @@
         <li>👉 And so that, people understand on the first touch what framework has been used.</li>
       </ul>
       <p>Yes, you might think, why Vue? Why not Node, Mongo or, something like that, as I used them also along with Vue in here. Well, to be precise, I preferred 'Vue Store' because it was the first time making something after learning Vue in 2019. Hi, I am
-        <router-link to="/profile/tahsin" class="link">Mohammad Tahsin</router-link>&nbsp;and I think this is the prefect time and point to tell what's this all about!
+        <router-link to="/profile/5c5c0adf02479d0017a36ec2" class="link">Mohammad Tahsin</router-link>&nbsp;and I think this is the prefect time and point to tell what's this all about!
       </p>
       <div class="mt-4 feature-1">
-        <p>'Vue Store' a simple e-commerce like single page application (SPA) where you can:</p>
+        <p>
+          'Vue Store' is a simple e-commerce like single page Node-Express application (SPA).
+          <a
+            href="https://en.wikipedia.org/wiki/Representational_state_transfer"
+            target="_blank"
+          >REST API</a> comes into the big picture when both client and server talk to each other. In this application you can:
+        </p>
         <hr>
         <ul>
           <li>Post your advertisement of your product</li>
@@ -76,7 +82,12 @@
       <div class="conclusion">
         <h4>Conclusion</h4>
         <hr>
-        <p>Although I tried to make it as a full featured demo application. Making it with only 6 months of experience I guess it's pretty obvious getting some bugs. If you find so, just help me mentioning on my github. I'll try my best to fix them in a proper way.</p>
+        <p>
+          I tried to make it as a full featured demo application. Making it with only 6 months of experience I guess it's pretty obvious getting some bugs around. If you find so, just help me mentioning it on my
+          <a
+            href="#"
+          >github</a>. I'll try my best to fix them in a proper way. Peace ✌.
+        </p>
       </div>
     </div>
   </div>
@@ -91,42 +102,60 @@ export default {
         {
           title: 'Node.js',
           description:
-            'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Iste a quibusdam quas.',
+            'Runtime environment for Javascript to run JavaScript outside of the browser.',
+        },
+        {
+          title: 'Express.js',
+          description:
+            'Most popular framework for Node Applications designed for building web applications and APIs.',
         },
         {
           title: 'Vue.js',
           description:
-            'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Iste a quibusdam quas.',
+            'One of the popular frameworks out there in 2019 for building UI. Other two players are Angular & React.',
         },
         {
           title: 'Vuex',
           description:
-            'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Iste a quibusdam quas.',
-        },
-        {
-          title: 'Express',
-          description:
-            'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Iste a quibusdam quas.',
+            'Vuex is a state management pattern + library for Vue.js applications for serving as a centralized store for all components..',
         },
         {
           title: 'Mongodb',
           description:
-            'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Iste a quibusdam quas.',
+            'One of the popular databases and most popular database with Node Application.',
+        },
+        {
+          title: 'Firebase',
+          description:
+            "I've used firebase to host Vue SPA. There were other options though like Amazon S3.",
+        },
+        {
+          title: 'Socket.io',
+          description:
+            "I've used Socket.io to give the feeling of realtime push notification Service to the users & update contents live.",
         },
         {
           title: 'Bcrypt',
           description:
-            'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Iste a quibusdam quas.',
+            'Bcrypt is a password hashing function based on the Blowfish block cipher cryptomatic algorithm and takes the form of an adaptive hash function.',
+        },
+        {
+          title: 'JWT',
+          description: 'Used JWT (JSON Web Token) to track user authentication.',
+        },
+        {
+          title: 'Axios',
+          description: "I've used Axios over Vue-Resource to send AJAX request.",
         },
         {
           title: 'Multer and Cloudinary',
           description:
-            'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Iste a quibusdam quas.',
+            "To upload files to the server and I've used cloudinary to host images via CDN.",
         },
         {
           title: 'Sass',
           description:
-            'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Iste a quibusdam quas.',
+            'CSS preprocessor. Sass is an extension of CSS3, adding nested rules, variables, mixins, selector inheritance, and more.',
         },
       ],
     };
@@ -343,9 +372,10 @@ export default {
     color: #4e5252;
   }
   p {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     color: #5b6565;
-    font-family: cursive;
+    font-family: "Handlee", cursive;
+
     text-align: center;
   }
   width: 200px;

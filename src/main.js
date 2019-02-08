@@ -1,5 +1,9 @@
 import Vue from 'vue';
 import VueResource from 'vue-resource';
+// import firebase from 'firebase';
+// import firebase from 'firebase/app';
+import firebase from 'firebase/app';
+// import 'firebase/<PACKAGE>';
 import VeeValidate from 'vee-validate';
 import VueFlashMessage from 'vue-flash-message';
 import Notifications from 'vue-notification';
@@ -44,6 +48,17 @@ function renderVue() {
     router,
     store,
     render: h => h(App),
+    created() {
+      const config = {
+        apiKey: 'AIzaSyAc7Syc0NYwXDb25d1-OSbCXqSkuWIfG5M',
+        authDomain: 'vue-store-tahsin.firebaseapp.com',
+        databaseURL: 'https://vue-store-tahsin.firebaseio.com',
+        projectId: 'vue-store-tahsin',
+        storageBucket: 'gs://vue-store-tahsin.appspot.com/',
+        messagingSenderId: '909938365359',
+      };
+      firebase.initializeApp(config);
+    },
   }).$mount('#app');
 }
 
