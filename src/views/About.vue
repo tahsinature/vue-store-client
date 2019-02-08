@@ -85,7 +85,8 @@
         <p>
           I tried to make it as a full featured demo application. Making it with only 6 months of experience I guess it's pretty obvious getting some bugs around. If you find so, just help me mentioning it on my
           <a
-            href="#"
+            href="https://github.com/tahsinature"
+            target="_blank"
           >github</a>. I'll try my best to fix them in a proper way. Peace ✌.
         </p>
       </div>
