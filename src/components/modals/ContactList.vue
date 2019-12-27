@@ -10,7 +10,7 @@
             placeholder="Seach your contacts"
             v-if="searchMode"
             v-model="searchText"
-          >
+          />
           <p key="2" class="title" v-else>Contacts</p>
         </transition>
       </div>
@@ -23,7 +23,7 @@
     </div>
     <div class="body">
       <div class="contact-tile" v-for="contact in filterdResult" :key="contact._id">
-        <img v-lazy="contact.profilePhoto.url" alt>
+        <img v-lazy="contact.profilePhoto.url" alt />
         <div class="details">
           <div class="left">
             <router-link :to="'/profile/' + contact._id">
@@ -31,7 +31,7 @@
             </router-link>
 
             <p
-              class="ads text-muted"
+              class="prod-holder text-muted"
             >{{contact.products.length}} Active {{contact.products.length > 1 ? 'Ads' : 'Ad' }}</p>
           </div>
           <div class="right">
@@ -136,7 +136,7 @@ export default {
       .name {
         font-weight: bold;
       }
-      .ads {
+      .prod-holder {
         font-size: 0.8rem;
       }
     }
