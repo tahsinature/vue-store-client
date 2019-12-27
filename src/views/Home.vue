@@ -23,10 +23,10 @@
       ></app-category>
     </modal>
     <!-- <hr> -->
-    <div v-if="!products" class="container no-ads">
+    <div v-if="!products" class="container no-prods">
       <img src="https://www.animalboosternutrition.com/images/no-magento-product-found.jpg" alt>
     </div>
-    <div class="container ads-holder" v-else>
+    <div class="container prods-holder" v-else>
       <app-product-preview v-for="product in products" :key="product._id" :product="product"></app-product-preview>
       <app-pagination
         :pageNumber="pageNumber"
@@ -120,9 +120,9 @@ export default {
 <style lang="scss" scoped>
 @import "../assets/sass/main";
 
-.ads-holder,
+.prods-holder,
 .search-section,
-.no-ads {
+.no-prods {
   background: #fff;
   border: 2px solid gainsboro;
   border-radius: 5px;
@@ -134,7 +134,7 @@ export default {
     width: 100%;
   }
 }
-.no-ads {
+.no-prods {
   display: flex;
   justify-content: center;
   align-items: center;
