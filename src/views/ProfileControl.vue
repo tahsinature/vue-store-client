@@ -27,6 +27,9 @@
       </div>
       <div class="form">
         <h1 class="form-title">{{mode}} User</h1>
+        <p class="mb-3 text-muted" v-if="mode === 'login'">
+          <small>Dummy Account => user: john | pass: 123456</small>
+        </p>
         <form v-if="mode === 'login'" @submit.prevent="handleLogin">
           <div class="form-group">
             <input
