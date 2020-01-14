@@ -15,15 +15,15 @@
     </modal>
     <div class="left">
       <div class="img-box">
-        <img v-lazy="getSelectedUser.profilePhoto.url" alt>
+        <img v-lazy="getSelectedUser.profilePhoto.url" alt />
       </div>
       <div class="recent-posts">
         <div class="heading">
           <small class="text-muted">Recent Posts</small>
-          <hr>
+          <hr />
         </div>
         <div class="no-posts" v-if="getSelectedUser.products.length < 1">
-          <img src="https://pbs.twimg.com/media/CidJXBuUUAEgAYu.jpg" alt>
+          <img src="https://pbs.twimg.com/media/CidJXBuUUAEgAYu.jpg" alt />
         </div>
         <div
           class="recent-posts__post"
@@ -167,51 +167,51 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
-import socket from 'socket.io-client';
-import axios from 'axios';
-import eventBus from '../main';
-import MyProductsCardVue from '../components/MyProductsCard.vue';
-import store from '../store/store';
-import { authController } from '../api';
-import ContactListVue from '../components/modals/ContactList.vue';
-import WriteMessageVue from '../components/modals/WriteMessage.vue';
+import { mapGetters } from "vuex";
+import socket from "socket.io-client";
+import axios from "axios";
+import eventBus from "../main";
+import MyProductsCardVue from "../components/MyProductsCard.vue";
+import store from "../store/store";
+import { authController } from "../api";
+import ContactListVue from "../components/modals/ContactList.vue";
+import WriteMessageVue from "../components/modals/WriteMessage.vue";
 
 // const socketOn = socket('http://localhost:3000');
-const socketOn = socket('https://vue-store-tahsin.herokuapp.com/');
+const socketOn = socket("https://vue-store-tahsin.herokuapp.com/");
 
 export default {
   data() {
     return {
       role: undefined,
-      mode: 'about',
-      userInfoToSendMsgFromContacts: undefined,
+      mode: "about",
+      userInfoToSendMsgFromContacts: undefined
     };
   },
   components: {
-    'app-card': MyProductsCardVue,
-    'app-contact': ContactListVue,
-    'app-message': WriteMessageVue,
+    "app-card": MyProductsCardVue,
+    "app-contact": ContactListVue,
+    "app-message": WriteMessageVue
   },
   watch: {
     $route(to, from) {
-      to.fullPath.split('/').pop() === 'me'
-        ? (this.role = 'admin')
-        : (this.role = 'user');
-    },
+      to.fullPath.split("/").pop() === "me"
+        ? (this.role = "admin")
+        : (this.role = "user");
+    }
   },
   beforeRouteEnter(to, from, next) {
     if (store.getters.isLoggedIn) {
-      to.fullPath.split('/').pop() === 'me'
-        ? (eventBus.profile.role = 'admin')
-        : (eventBus.profile.role = 'user');
+      to.fullPath.split("/").pop() === "me"
+        ? (eventBus.profile.role = "admin")
+        : (eventBus.profile.role = "user");
       let userId;
-      if (eventBus.profile.role === 'admin') {
+      if (eventBus.profile.role === "admin") {
         userId = store.getters.getAdmin._id;
       } else {
         userId = to.params.id;
         // ---
-        if (userId === store.getters.getAdmin._id) next('/me');
+        if (userId === store.getters.getAdmin._id) next("/me");
         // ---
       }
       const user = store.getters.getSelectedUser;
@@ -219,16 +219,16 @@ export default {
         authController
           .getUser(userId)
           .then(({ data }) => {
-            store.dispatch('setSelectedUser', data);
+            store.dispatch("setSelectedUser", data);
             next();
           })
           .catch(({ response }) => {
-            eventBus.$emit('onNotify', {
-              title: 'No user found',
-              text: 'Sorry no user found with this given URL',
-              type: 'error',
+            eventBus.$emit("onNotify", {
+              title: "No user found",
+              text: "Sorry no user found with this given URL",
+              type: "error"
             });
-            next('404');
+            next("404");
           });
       }
       if (user) {
@@ -237,70 +237,70 @@ export default {
         } else getUserFromServer();
       } else getUserFromServer();
     } else {
-      eventBus.$emit('onNotify', {
-        title: 'You have to be logged in',
+      eventBus.$emit("onNotify", {
+        title: "You have to be logged in",
         text: "You've to be logged in to view profile.",
-        type: 'error',
+        type: "error"
       });
-      next('/login');
+      next("/login");
     }
   },
   computed: {
-    ...mapGetters(['getSelectedUser']),
+    ...mapGetters(["getSelectedUser"]),
     isFriend() {
       return this.$store.getters.getAdmin.contacts.includes(
-        this.getSelectedUser._id,
+        this.getSelectedUser._id
       );
-    },
+    }
   },
   methods: {
     SendMessageFromContactModel(event) {
-      this.$modal.hide('contact');
+      this.$modal.hide("contact");
       this.userInfoToSendMsgFromContacts = event;
-      this.$modal.show('message');
+      this.$modal.show("message");
     },
     toggleContact() {
       const userId = this.getSelectedUser._id;
       axios
-        .post('/contacts', { contactId: userId })
+        .post("/contacts", { contactId: userId })
         .then(({ data, status }) => {
           if (status !== 200) {
-            return eventBus.$emit('onNotify', {
-              title: 'Something went wrong adding/removing contact',
-              text: 'Please refresh the page',
-              type: 'error',
+            return eventBus.$emit("onNotify", {
+              title: "Something went wrong adding/removing contact",
+              text: "Please refresh the page",
+              type: "error"
             });
           }
-          if (data === 'add') {
-            this.$store.dispatch('addFriend', userId);
+          if (data === "add") {
+            this.$store.dispatch("addFriend", userId);
           }
-          if (data === 'remove') {
-            this.$store.dispatch('removeFriend', userId);
+          if (data === "remove") {
+            this.$store.dispatch("removeFriend", userId);
           }
         })
         .catch(err => console.log(err));
     },
     logout() {
-      localStorage.removeItem('token');
-      this.$store.dispatch('removeAdmin');
+      localStorage.removeItem("token");
+      this.$store.dispatch("removeAdmin");
       this.$destroy();
       window.location.reload();
-    },
+    }
   },
   created() {
     this.role = eventBus.profile.role;
   },
   mounted() {
-    socketOn.addEventListener('userOnline', (id) => {
-      this.$store.dispatch('setStatusOnline', id);
+    socketOn.addEventListener("userOnline", id => {
+      this.$store.dispatch("setStatusOnline", id);
     });
-    socketOn.addEventListener('userOffline', (id) => {
-      this.$store.dispatch('setStatusOffline', id);
+    socketOn.addEventListener("userOffline", id => {
+      this.$store.dispatch("setStatusOffline", id);
     });
   },
   deactivated() {
     this.$destroy();
-  },
+  }
 };
 </script>
 
