@@ -1,5 +1,8 @@
 # state-management
 
+# Environment Deatils
+====
+
 ## Project setup
 ```
 npm install
