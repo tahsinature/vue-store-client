@@ -2,6 +2,7 @@
 
 # Environment Deatils
 ====
+node: 
 
 ## Project setup
 ```
