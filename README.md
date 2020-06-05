@@ -8,7 +8,6 @@ node:
 <br />
 
 
-
 ## Project setup
 ```
 npm install
