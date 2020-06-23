@@ -7,7 +7,6 @@
 node: 
 <br />
 
-## test
 
 ## Project setup
 ```
