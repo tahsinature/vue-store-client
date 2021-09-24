@@ -176,9 +176,9 @@ import store from '../store/store';
 import { authController } from '../api';
 import ContactListVue from '../components/modals/ContactList.vue';
 import WriteMessageVue from '../components/modals/WriteMessage.vue';
+import config from '../config';
 
-// const socketOn = socket('http://localhost:3000');
-const socketOn = socket('https://vue-store-tahsin.herokuapp.com/');
+const socketOn = socket(config.apiURL);
 
 export default {
   data() {

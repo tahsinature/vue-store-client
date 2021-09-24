@@ -173,9 +173,9 @@ import ProductDetailsImageVue from '../components/ProductDetailsImage.vue';
 import CommentVue from '../components/Comment.vue';
 import DeleteConfirmationVue from '../components/modals/DeleteConfirmation.vue';
 import eventBus from '../main';
+import config from '../config';
 
-// const socketOn = socket('http://localhost:3000');
-const socketOn = socket('https://vue-store-tahsin.herokuapp.com/');
+const socketOn = socket(config.apiURL);
 
 export default {
   components: {
