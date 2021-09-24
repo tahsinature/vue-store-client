@@ -12,4 +12,9 @@ services:
       VIRTUAL_HOST: "vue-store.do.tahsinature.me"
       VIRTUAL_PORT: "80"
       LETSENCRYPT_HOST: "vue-store.do.tahsinature.me"
+    networks:
+      - nginx_proxy_net
 
+networks:
+  nginx_proxy_net:
+    external: true
