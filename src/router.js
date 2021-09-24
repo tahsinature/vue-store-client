@@ -5,10 +5,11 @@ import Home from './views/Home.vue';
 import { authController, productController } from './api';
 import eventBus from './main';
 import store from './store/store';
+import config from './config';
 
 const token = localStorage.getItem('token');
 
-axios.defaults.baseURL = 'https://vue-store-tahsin.herokuapp.com/';
+axios.defaults.baseURL = config.apiURL;
 axios.defaults.headers.common['x-auth-token'] = token;
 
 // axios.defaults.baseURL = 'http://localhost:3000';

@@ -82,9 +82,9 @@ import socket from 'socket.io-client';
 import { mapGetters } from 'vuex';
 import eventBus from '../main';
 import store from '../store/store';
+import config from '../config';
 
-// const socketOn = socket('http://localhost:3000');
-const socketOn = socket('https://vue-store-tahsin.herokuapp.com/');
+const socketOn = socket(config.apiURL);
 
 export default {
   data() {

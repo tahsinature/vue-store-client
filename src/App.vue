@@ -23,9 +23,9 @@ import CartVue from './components/Cart.vue';
 import eventBus from './main';
 import SideNavVue from './components/SideNav.vue';
 import { productController, authController } from './api';
+import config from './config';
 
-// const socketOn = socket('http://localhost:3000');
-const socketOn = socket('https://vue-store-tahsin.herokuapp.com/');
+const socketOn = socket(config.apiURL);
 
 export default {
   methods: {
