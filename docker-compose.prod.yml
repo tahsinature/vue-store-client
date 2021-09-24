@@ -5,9 +5,6 @@ services:
     build:
       context: .
       dockerfile: docker-prod.dockerfile
-    ports:
-      - "80"
-      - "443"
     environment:
       VIRTUAL_HOST: "vue-store.do.tahsinature.me"
       VIRTUAL_PORT: "80"
