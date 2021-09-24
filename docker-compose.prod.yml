@@ -7,6 +7,7 @@ services:
       dockerfile: docker-prod.dockerfile
     ports:
       - "80"
+      - "443"
     environment:
       VIRTUAL_HOST: "vue-store.do.tahsinature.me"
       LETSENCRYPT_HOST: "vue-store.do.tahsinature.me"
