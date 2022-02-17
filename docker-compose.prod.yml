@@ -5,13 +5,16 @@ services:
     build:
       context: .
       dockerfile: docker-prod.dockerfile
-    environment:
-      VIRTUAL_HOST: "vue-store.do.tahsinature.me"
-      VIRTUAL_PORT: "80"
-      LETSENCRYPT_HOST: "vue-store.do.tahsinature.me"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.vue-store-client.rule=Host(`vue-store.tahsin.us`)
+      - traefik.http.routers.vue-store-client.entrypoints=websecure
+      - traefik.http.services.vue-store-client.loadbalancer.server.port=80
+      - traefik.http.routers.vue-store-client.tls=true
+      - traefik.http.routers.vue-store-client.tls.certresolver=myresolver
     networks:
-      - nginx_proxy_net
+      - traefik
 
 networks:
-  nginx_proxy_net:
+  traefik:
     external: true
